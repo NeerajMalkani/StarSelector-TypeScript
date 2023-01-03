@@ -23,19 +23,20 @@ const Home = ({ theme }: BasicProps) => {
       if (Array.isArray(s.seriesAdWrapper) && s.seriesAdWrapper.length > 0) {
         s.seriesAdWrapper.map((m: any) => {
           if (m.seriesMatches && Array.isArray(m.seriesMatches.matches) && m.seriesMatches.matches.length > 0) {
+            const matchInfo = m.seriesMatches.matches[0].matchInfo;
             matchesCreate.push({
-              team1ImageID: m.seriesMatches.matches[0].matchInfo.team1.imageId,
-              team2ImageID: m.seriesMatches.matches[0].matchInfo.team2.imageId,
-              team1Name: m.seriesMatches.matches[0].matchInfo.team1.teamSName,
-              team2Name: m.seriesMatches.matches[0].matchInfo.team2.teamSName,
-              matchTitle: m.seriesMatches.matches[0].matchInfo.seriesName,
-              matchDesc: m.seriesMatches.matches[0].matchInfo.matchDesc,
-              state: m.seriesMatches.matches[0].matchInfo.state,
+              team1ImageID: matchInfo.team1.imageId,
+              team2ImageID: matchInfo.team2.imageId,
+              team1Name: matchInfo.team1.teamSName,
+              team2Name: matchInfo.team2.teamSName,
+              matchTitle: matchInfo.seriesName,
+              matchDesc: matchInfo.matchDesc,
+              state: matchInfo.state,
             });
 
             let image1: any = null,
               image2: any = null;
-            GetImageFromID(m.seriesMatches.matches[0].matchInfo.team1.imageId, (base64Image: any, id: any) => {
+            GetImageFromID(matchInfo.team1.imageId, (base64Image: any, id: any) => {
               image1 = base64Image;
               if (image1 !== null && image2 !== null) {
                 const matchesTemp = [...matchesCreate];
@@ -48,7 +49,7 @@ const Home = ({ theme }: BasicProps) => {
                 setMatches(matchesTemp);
               }
             });
-            GetImageFromID(m.seriesMatches.matches[0].matchInfo.team2.imageId, (base64Image: any, id: any) => {
+            GetImageFromID(matchInfo.team2.imageId, (base64Image: any, id: any) => {
               image2 = base64Image;
               if (image1 !== null && image2 !== null) {
                 const matchesTemp = [...matchesCreate];
