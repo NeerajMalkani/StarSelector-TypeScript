@@ -34,33 +34,23 @@ const Home = ({ theme }: BasicProps) => {
               state: matchInfo.state,
             });
 
-            let image1: any = null,
-              image2: any = null;
             GetImageFromID(matchInfo.team1.imageId, (base64Image: any, id: any) => {
-              image1 = base64Image;
-              if (image1 !== null && image2 !== null) {
                 const matchesTemp = [...matchesCreate];
                 matchesTemp.map((k) => {
                   if (k.team1ImageID === id) {
-                    k.team1Image = image1;
-                    k.team2Image = image2;
+                    k.team1Image = base64Image;
                   }
                 });
                 setMatches(matchesTemp);
-              }
             });
             GetImageFromID(matchInfo.team2.imageId, (base64Image: any, id: any) => {
-              image2 = base64Image;
-              if (image1 !== null && image2 !== null) {
                 const matchesTemp = [...matchesCreate];
                 matchesTemp.map((k) => {
                   if (k.team2ImageID === id) {
-                    k.team1Image = image1;
-                    k.team2Image = image2;
+                    k.team2Image = base64Image;
                   }
                 });
                 setMatches(matchesTemp);
-              }
             });
           }
         });
