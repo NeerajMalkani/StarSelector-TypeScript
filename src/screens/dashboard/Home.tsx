@@ -17,22 +17,47 @@ const Home = ({ theme }: BasicProps) => {
   const isCarousel = useRef(null);
   const [matches, setMatches] = useState<Array<Match>>([]);
 
-  const CreateMatchData = (response: any) => {
+  const CreateFeaturedMatches = (response: any) => {
     const matchesCreate: Array<Match> = [];
     response.data.typeMatches.map((s: any, i: number) => {
       if (Array.isArray(s.seriesAdWrapper) && s.seriesAdWrapper.length > 0) {
         s.seriesAdWrapper.map((m: any) => {
           if (m.seriesMatches && Array.isArray(m.seriesMatches.matches) && m.seriesMatches.matches.length > 0) {
             const matchInfo = m.seriesMatches.matches[0].matchInfo;
-            matchesCreate.push({
-              team1ImageID: matchInfo.team1.imageId,
-              team2ImageID: matchInfo.team2.imageId,
-              team1Name: matchInfo.team1.teamSName,
-              team2Name: matchInfo.team2.teamSName,
-              matchTitle: matchInfo.seriesName,
-              matchDesc: matchInfo.matchDesc,
-              state: matchInfo.state,
-            });
+            const matchScore = m.seriesMatches.matches[0].matchScore;
+            let objMatchDetails: Match = new Object();
+            objMatchDetails.matchTitle= matchInfo.seriesName;
+            objMatchDetails.matchDesc= matchInfo.matchDesc
+            objMatchDetails.state= matchInfo.state;
+            objMatchDetails.team1ImageID= matchInfo.team1.imageId;
+            objMatchDetails.team2ImageID= matchInfo.team2.imageId;
+            objMatchDetails.team1Name= matchInfo.team1.teamSName;
+            objMatchDetails.team2Name= matchInfo.team2.teamSName;
+            if(matchScore && "team1Score" in matchScore){
+              if("inngs1" in matchScore.team1Score){
+                objMatchDetails.team1RunsInn1 = matchScore.team1Score.inngs1.runs;
+                objMatchDetails.team1OversInn1 = matchScore.team1Score.inngs1.overs;
+                objMatchDetails.team1WicketsInn1 = matchScore.team1Score.inngs1.wickets;
+              }
+              if("inngs2" in matchScore.team1Score){
+                objMatchDetails.team1RunsInn2 = matchScore.team1Score.inngs2.runs;
+                objMatchDetails.team1OversInn2 = matchScore.team1Score.inngs2.overs;
+                objMatchDetails.team1WicketsInn2 = matchScore.team1Score.inngs2.wickets;
+              }
+            }
+            if(matchScore && "team2Score" in matchScore){
+              if("inngs1" in matchScore.team2Score){
+                objMatchDetails.team2RunsInn1 = matchScore.team2Score.inngs1.runs;
+                objMatchDetails.team2OversInn1 = matchScore.team2Score.inngs1.overs;
+                objMatchDetails.team2WicketsInn1 = matchScore.team2Score.inngs1.wickets;
+              }
+              if("inngs2" in matchScore.team2Score){
+                objMatchDetails.team2RunsInn2 = matchScore.team2Score.inngs2.runs;
+                objMatchDetails.team2OversInn2 = matchScore.team2Score.inngs2.overs;
+                objMatchDetails.team2WicketsInn2 = matchScore.team2Score.inngs2.wickets;
+              }
+            }
+            matchesCreate.push(objMatchDetails);
 
             GetImageFromID(matchInfo.team1.imageId, (base64Image: any, id: any) => {
                 const matchesTemp = [...matchesCreate];
@@ -59,16 +84,21 @@ const Home = ({ theme }: BasicProps) => {
     setMatches(matchesCreate);
   };
 
+  const FetchFeaturedMatchData = () => {
+    Provider.get("matches/list", { matchState: "live" })
+    .then((response) => {
+      if (response && response.data && Array.isArray(response.data.typeMatches) && response.data.typeMatches.length > 0) {
+        CreateFeaturedMatches(response);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+    });
+  };
+
   useEffect(() => {
-    Provider.get("matches/list", { matchState: "live" }, { "X-RapidAPI-Key": "Qtw5daIGTJmsha5QLAJJypOYspmxp1Fvr02jsnBNF5nCbUk9IG", "X-RapidAPI-Host": "unofficial-cricbuzz.p.rapidapi.com" })
-      .then((response) => {
-        if (response && response.data && Array.isArray(response.data.typeMatches) && response.data.typeMatches.length > 0) {
-          CreateMatchData(response);
-        }
-      })
-      .catch((ex) => {
-        console.log(ex);
-      });
+    FetchFeaturedMatchData();
+    
   }, []);
 
   return (
