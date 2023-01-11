@@ -9,8 +9,7 @@ const FetchImage = (imageID: number) => {
       "X-RapidAPI-Host": X_RapidAPI_Host,
     },
   };
-
-  return fetch( BASE_URL + "get-image?id=" + imageID, options).then((response) => response.blob());
+  return fetch( BASE_URL + "get-image?id=" + imageID + "&p=thumb", options).then((response) => response.blob());
 };
 
 const GetAllPromises = (id: any) => {

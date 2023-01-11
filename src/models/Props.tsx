@@ -11,6 +11,7 @@ export interface Match {
   team1ImageID?: number;
   team1Image?: string;
   team1Name?: string;
+  team1FullName?: string;
   team1RunsInn1?: number;
   team1WicketsInn1?: number;
   team1OversInn1?: number;
@@ -20,6 +21,7 @@ export interface Match {
   team2ImageID?: number;
   team2Image?: string;
   team2Name?: string;
+  team2FullName?: string;
   team2RunsInn1?: number;
   team2WicketsInn1?: number;
   team2OversInn1?: number;
