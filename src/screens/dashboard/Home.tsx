@@ -109,15 +109,18 @@ const Home = ({ theme }: BasicProps) => {
   }, []);
 
   return (
-    <ScrollView style={[Styles.flex1, { backgroundColor: "transparent"}]} refreshControl={
-      <RefreshControl
-        colors={[theme.colors.primary]}
-        refreshing={refreshing}
-        onRefresh={() => {
-          FetchFeaturedMatchData();
-        }}
-      />
-    }>
+    <ScrollView
+      style={[Styles.flex1, { backgroundColor: "transparent" }]}
+      refreshControl={
+        <RefreshControl
+          colors={[theme.colors.primary]}
+          refreshing={refreshing}
+          onRefresh={() => {
+            FetchFeaturedMatchData();
+          }}
+        />
+      }
+    >
       <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
       <View style={[Styles.width100per, Styles.height192, Styles.positionAbsolute, { backgroundColor: colors.primary, borderBottomLeftRadius: 96 }]}>
         <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.padding16, { justifyContent: "space-between" }]}>
@@ -132,8 +135,26 @@ const Home = ({ theme }: BasicProps) => {
         </View>
       </View>
       <View style={[{ marginTop: 64 }]}>
-        <Carousel vertical={false} ref={isCarousel} data={matches} renderItem={SingleMatchCards} sliderWidth={SLIDER_WIDTH} itemWidth={ITEM_WIDTH} inactiveSlideShift={0} onSnapToItem={(index) => setIndex(index)} />
-        <Pagination dotsLength={matches.length} activeDotIndex={index} carouselRef={isCarousel} containerStyle={{ marginTop: -16 }} inactiveDotScale={0.6} dotStyle={[{ backgroundColor: colors.primary, width: 12, height: 12, borderRadius: 6, marginStart: -8 }]} inactiveDotStyle={[{ backgroundColor: colors.textSecondary }]} tappableDots={true} />
+        <Carousel
+          vertical={false}
+          ref={isCarousel}
+          data={matches}
+          renderItem={SingleMatchCards}
+          sliderWidth={SLIDER_WIDTH}
+          itemWidth={ITEM_WIDTH}
+          inactiveSlideShift={0}
+          onSnapToItem={(index) => setIndex(index)}
+        />
+        <Pagination
+          dotsLength={matches.length}
+          activeDotIndex={index}
+          carouselRef={isCarousel}
+          containerStyle={{ marginTop: -16 }}
+          inactiveDotScale={0.6}
+          dotStyle={[{ backgroundColor: colors.primary, width: 12, height: 12, borderRadius: 6, marginStart: -8 }]}
+          inactiveDotStyle={[{ backgroundColor: colors.textSecondary }]}
+          tappableDots={true}
+        />
       </View>
     </ScrollView>
   );

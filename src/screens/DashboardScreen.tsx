@@ -40,7 +40,21 @@ const DashboardScreen = ({ route, theme }: BasicProps) => {
   if (!fontsLoaded) {
     return null;
   } else {
-    return <BottomNavigation shifting compact sceneAnimationEnabled sceneAnimationType="shifting" navigationState={{ index, routes }} onIndexChange={setIndex} renderScene={renderScene} activeColor={colors.primary} inactiveColor={colors.textSecondary} theme={{ colors: { secondaryContainer: "transparent" } }} barStyle={{ backgroundColor: colors.backgroundSecondary, borderTopColor: colors.textTertiary, borderTopWidth: 1 }} />;
+    return (
+      <BottomNavigation
+        shifting
+        compact
+        sceneAnimationEnabled
+        sceneAnimationType="shifting"
+        navigationState={{ index, routes }}
+        onIndexChange={setIndex}
+        renderScene={renderScene}
+        activeColor={colors.primary}
+        inactiveColor={colors.textSecondary}
+        theme={{ colors: { secondaryContainer: "transparent" } }}
+        barStyle={{ backgroundColor: colors.backgroundSecondary, borderTopColor: colors.textTertiary, borderTopWidth: 1 }}
+      />
+    );
   }
 };
 
