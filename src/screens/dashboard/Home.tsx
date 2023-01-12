@@ -62,32 +62,32 @@ const Home = ({ theme }: BasicProps) => {
             }
             matchesCreate.push(objMatchDetails);
 
-            // GetImageFromID(matchInfo.team1.imageId, (base64Image: any, id: any) => {
-            //   const matchesTemp = [...matchesCreate];
-            //   matchesTemp.map((k) => {
-            //     if (k.team1ImageID === id) {
-            //       k.team1Image = base64Image;
-            //     }
-            //   });
-            //   if (matchState === "live") {
-            //     setLiveMatches(matchesTemp);
-            //   } else {
-            //     setUpcomingMatches(matchesTemp);
-            //   }
-            // });
-            // GetImageFromID(matchInfo.team2.imageId, (base64Image: any, id: any) => {
-            //   const matchesTemp = [...matchesCreate];
-            //   matchesTemp.map((k) => {
-            //     if (k.team2ImageID === id) {
-            //       k.team2Image = base64Image;
-            //     }
-            //   });
-            //   if (matchState === "live") {
-            //     setLiveMatches(matchesTemp);
-            //   } else {
-            //     setUpcomingMatches(matchesTemp);
-            //   }
-            // });
+            GetImageFromID(matchInfo.team1.imageId, (base64Image: any, id: any) => {
+              const matchesTemp = [...matchesCreate];
+              matchesTemp.map((k) => {
+                if (k.team1ImageID === id) {
+                  k.team1Image = base64Image;
+                }
+              });
+              if (matchState === "live") {
+                setLiveMatches(matchesTemp);
+              } else {
+                setUpcomingMatches(matchesTemp);
+              }
+            });
+            GetImageFromID(matchInfo.team2.imageId, (base64Image: any, id: any) => {
+              const matchesTemp = [...matchesCreate];
+              matchesTemp.map((k) => {
+                if (k.team2ImageID === id) {
+                  k.team2Image = base64Image;
+                }
+              });
+              if (matchState === "live") {
+                setLiveMatches(matchesTemp);
+              } else {
+                setUpcomingMatches(matchesTemp);
+              }
+            });
           }
         });
       }
@@ -161,7 +161,7 @@ const Home = ({ theme }: BasicProps) => {
             </Text>
             <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
               {upcomingMatches.map((k, i) => {
-                return <CarouselCardItem item={k} index={k} colors={colors} multicolors={multicolors} isLast={i === upcomingMatches.length - 1 ? true : false} type="upcoming" />;
+                return <CarouselCardItem key={i} item={k} index={k} colors={colors} multicolors={multicolors} isLast={i === upcomingMatches.length - 1 ? true : false} type="upcoming" />;
               })}
             </ScrollView>
           </View>
