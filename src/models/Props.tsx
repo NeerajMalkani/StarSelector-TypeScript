@@ -4,32 +4,71 @@ export interface BasicProps {
   navigation: any;
 }
 
+
+export interface TypeMatch {
+  matchType: string
+  seriesAdWrapper: SeriesAdWrapper[]
+}
+
+export interface SeriesAdWrapper {
+  seriesMatches?: SeriesMatches
+}
+
+export interface SeriesMatches {
+  seriesId: number
+  seriesName: string
+  matches: Match[]
+}
+
 export interface Match {
-  matchTitle?: string;
-  matchDesc?: string;
+  MatchInfo?: MatchInfo;
+  MatchScore?: MatchScore
+}
+
+export interface MatchInfo {
+  matchId?: number;
+  seriesId?: number;
+  seriesName?: string;
   matchFormat?: string;
-  team1ImageID?: number;
-  team1Image?: string;
-  team1Name?: string;
-  team1FullName?: string;
-  team1RunsInn1?: number;
-  team1WicketsInn1?: number;
-  team1OversInn1?: number;
-  team1RunsInn2?: number;
-  team1WicketsInn2?: number;
-  team1OversInn2?: number;
-  team2ImageID?: number;
-  team2Image?: string;
-  team2Name?: string;
-  team2FullName?: string;
-  team2RunsInn1?: number;
-  team2WicketsInn1?: number;
-  team2OversInn1?: number;
-  team2RunsInn2?: number;
-  team2WicketsInn2?: number;
-  team2OversInn2?: number;
   startDate?: string;
   endDate?: string;
   state?: string;
   status?: string;
+  team1?: Team;
+  team2?: Team;
+  venueInfo?: VenueInfo;
+  currentBatTeamId?: number;
+  seriesStartDt?: string;
+  seriesEndDt?: string;
+}
+
+export interface Team {
+  teamId?: number;
+  teamName?: string;
+  teamSName?: string;
+  imageId?: number;
+}
+
+export interface VenueInfo {
+  id?: number;
+  ground?: string;
+  city?: string;
+  timezone?: number;
+}
+
+export interface MatchScore {
+  team1Score?: TeamScore;
+  team2Score?: TeamScore;
+}
+
+export interface TeamScore {
+  inngs1?: InningsScore;
+  inngs2?: InningsScore;
+}
+
+export interface InningsScore {
+  inningsId?: number;
+  runs?: number;
+  wickets?: number;
+  overs?: number;
 }

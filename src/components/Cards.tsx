@@ -1,72 +1,46 @@
 import { Image, View } from "react-native";
-import { Button, Text } from "react-native-paper";
-import { SLIDER_WIDTH } from "../screens/dashboard/Home";
+import { Button, IconButton, Text } from "react-native-paper";
+import CountDown from "react-native-countdown-component";
+import { Team } from "../models/Props";
 import { Styles } from "../styles/styles";
-import { NoImage } from "../utils/Constants";
+import { NoImage, s3Path } from "../utils/Constants";
 
-const CarouselCardItem = ({ item, index, colors, multicolors, isLast, type }: any) => {
-  
-  const FormattedTeamOvers = (teamOvers: any) => {
-    let team1OversFormatted: string | undefined = "";
-    if (teamOvers && teamOvers.toString().split(".").length > 0) {
-      team1OversFormatted = teamOvers.toString().split(".")[1] === "6" ? teamOvers.toString().split(".")[0] + ".0" : teamOvers;
-    } else {
-      team1OversFormatted = teamOvers;
-    }
-    return team1OversFormatted;
+const CarouselCardItem = ({ item, colors, multicolors, isLast }: any) => {
+  const CreateTeam = (team: Team, index: number) => {
+    return (
+      <View style={[Styles.flexColumn, index === 1 ? Styles.flexAlignStart : Styles.flexAlignEnd, Styles.flex1]}>
+        {/* <Text variant="labelSmall" style={{ color: colors.textSecondary }}>
+          {team.teamName}
+        </Text> */}
+        <View style={[index === 1 ? Styles.flexRow : Styles.flexRowReverse, Styles.flexAlignCenter]}>
+          <Image source={{ uri: team.imageId ? s3Path + team.imageId + ".png" : NoImage }} style={[Styles.width32, Styles.height24, index === 1 ? Styles.marginEnd8 : Styles.marginStart8]} />
+          <Text variant="labelSmall">{team.teamSName}</Text>
+        </View>
+      </View>
+    );
   };
-
-  const team1Runs = item.team1RunsInn2 ? item.team1RunsInn2 : item.team1RunsInn1,
-    team1Overs = item.team1OversInn2 ? FormattedTeamOvers(item.team1OversInn2) : FormattedTeamOvers(item.team1OversInn1),
-    team1Wickets = item.team1WicketsInn2 ? item.team1WicketsInn2 : item.team1WicketsInn1;
-
-  const team2Runs = item.team2RunsInn2 ? item.team2RunsInn2 : item.team2RunsInn1,
-    team2Overs = item.team2OversInn2 ? FormattedTeamOvers(item.team2OversInn2) : FormattedTeamOvers(item.team2OversInn1),
-    team2Wickets = item.team2WicketsInn2 ? item.team2WicketsInn2 : item.team2WicketsInn1;
-
   return (
-    <View style={[Styles.borderRadius8, Styles.padding16, Styles.paddingBottom24, Styles.marginStart16, Styles.marginVertical16, { elevation: 7, backgroundColor: colors.backgroundTertiary, width: 196, marginEnd: isLast ? 16 : 0 }]} key={index}>
-      <View style={[Styles.flexRow, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
-        <View style={[Styles.flexAlignCenter, Styles.flexJustifyCenter, Styles.paddingVertical2, { borderBottomWidth: 2, borderBottomColor: item.state === "In Progress" ? multicolors.green : multicolors.yellow }]}>
-          <Text variant="labelMedium" style={[Styles.fontBold, { color: colors.text }]}>
-            {item.state === "In Progress" ? "Live" : item.state}
-          </Text>
-        </View>
+    <View style={[Styles.borderRadius8, Styles.marginHorizontal24, Styles.margin16, { elevation: 7, backgroundColor: colors.backgroundTertiary, marginBottom: isLast ? 16 : 0 }]}>
+      <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.paddingStart16, Styles.height48, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
+        <Text variant="bodyMedium" style={{ color: colors.textSecondary }}>
+          {item.matchInfo.seriesName}
+        </Text>
+        <IconButton icon="bell-ring-outline" iconColor={colors.text} size={18} onPress={() => {}} />
+      </View>
+      <View style={[Styles.paddingHorizontal16, Styles.paddingVertical8]}>
+        <Text variant="bodyMedium">{item.matchInfo.matchDesc}</Text>
+      </View>
+      <View style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
+        {CreateTeam(item.matchInfo.team1, 1)}
         <View>
-          <Text variant="labelSmall" style={[{ color: colors.text }]}>
-            2.4k
-          </Text>
+          <CountDown until={(item.matchInfo.startDate - new Date().getTime()) / 1000} timeLabels={{d: 'Days',  h: 'Hours', m: 'Minutes', s: 'Secs'}} digitTxtStyle={{color: colors.inverseText}} digitStyle={{ backgroundColor: colors.primary }} onFinish={() => console.log("finished")} size={12} />
         </View>
+        {CreateTeam(item.matchInfo.team2, 2)}
       </View>
-      <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.marginTop24, { justifyContent: "space-around" }]}>
-        <View style={[Styles.flexColumn, Styles.flexAlignCenter]}>
-          <Image style={[Styles.width32, Styles.height24]} source={{ uri: item.team1Image ? item.team1Image : NoImage }} />
-          <Text variant="titleSmall" style={[Styles.marginTop4]}>
-            {item.team1Name}
-          </Text>
-        </View>
-        <View style={[Styles.flexColumn, Styles.flexAlignCenter]}>
-          <Image style={[Styles.width32, Styles.height24]} source={{ uri: item.team2Image ? item.team2Image : NoImage }} />
-          <Text variant="titleSmall" style={[Styles.marginTop4]}>
-            {item.team2Name}
-          </Text>
-        </View>
+      <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.paddingHorizontal16, Styles.height48, Styles.width100per, Styles.borderRadius8, {justifyContent: "space-between", backgroundColor: "#efefef"}]}>
+          <Text variant="labelMedium">2.4k</Text>
+          <Button compact mode="text" icon="hand-coin" onPress={() => {}}>Join Contest</Button>
       </View>
-      <View style={[Styles.flexColumn, Styles.marginTop12]}>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
-          <Text variant="labelMedium" numberOfLines={1} style={[Styles.marginTop4, Styles.paddingEnd4, Styles.flex1]}>
-            {item.team1FullName}
-          </Text>
-          <Text variant="titleMedium">{(team1Runs ? team1Runs : 0) + "/" + (team1Wickets ? team1Wickets : 0)}</Text>
-        </View>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.marginTop4, { justifyContent: "space-between" }]}>
-          <Text variant="labelMedium" numberOfLines={1} style={[Styles.marginTop4, Styles.paddingEnd4, Styles.flex1]}>
-            {item.team2FullName}
-          </Text>
-          <Text variant="titleMedium">{(team2Runs ? team2Runs : 0) + "/" + (team2Wickets ? team2Wickets : 0)}</Text>
-        </View>
-      </View>
-      {type === "upcoming" && <Button mode="contained" style={[Styles.marginTop16]} onPress={() => {}}>Create Team</Button>}
     </View>
   );
 };
