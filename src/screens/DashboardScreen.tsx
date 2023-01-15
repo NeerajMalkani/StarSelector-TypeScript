@@ -3,8 +3,9 @@ import { BottomNavigation, withTheme } from "react-native-paper";
 import { useState } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Home from "./dashboard/Home";
-import Matches from "./dashboard/Matches";
+import Live from "./dashboard/Live";
 import Bets from "./dashboard/Bets";
+import News from "./dashboard/News";
 import Profile from "./dashboard/Profile";
 import { BasicProps } from "../models/Props";
 import { useFonts } from "expo-font";
@@ -19,9 +20,10 @@ const DashboardScreen = ({ route, theme }: BasicProps) => {
     IcoMoon: require("../../assets/resources/fonts/icomoon.ttf"),
   });
   const [routes] = useState([
-    { key: "home", title: "Home", focusedIcon: (props: any) => <Icon {...props} name="home-icon-silhouette" size={30} /> },
-    { key: "matches", title: "Matches", focusedIcon: (props: any) => <Icon {...props} name="calendar" size={28} /> },
-    { key: "bets", title: "Bets", focusedIcon: (props: any) => <Icon {...props} name="trophy" size={30} /> },
+    { key: "home", title: "Home", focusedIcon: (props: any) => <Icon {...props} name="home-icon-silhouette" size={28} /> },
+    { key: "live", title: "Live", focusedIcon: (props: any) => <Icon {...props} name="show" size={28} /> },
+    { key: "bets", title: "Bets", focusedIcon: (props: any) => <Icon {...props} name="trophy" size={28} /> },
+    { key: "news", title: "News", focusedIcon: (props: any) => <Ionicons {...props} name="newspaper" size={28} /> },
     { key: "profile", title: "Profile", focusedIcon: (props: any) => <Ionicons {...props} name="person" size={28} /> },
   ]);
 
@@ -29,10 +31,12 @@ const DashboardScreen = ({ route, theme }: BasicProps) => {
     switch (route.key) {
       case "home":
         return <Home theme={theme} route={null} navigation={null} />;
-      case "matches":
-        return <Matches />;
+      case "live":
+        return <Live theme={theme} route={null} navigation={null} />;
       case "bets":
         return <Bets />;
+      case "news":
+        return <News />;
       case "profile":
         return <Profile />;
     }
@@ -40,21 +44,7 @@ const DashboardScreen = ({ route, theme }: BasicProps) => {
   if (!fontsLoaded) {
     return null;
   } else {
-    return (
-      <BottomNavigation
-        shifting
-        compact
-        sceneAnimationEnabled
-        sceneAnimationType="shifting"
-        navigationState={{ index, routes }}
-        onIndexChange={setIndex}
-        renderScene={renderScene}
-        activeColor={colors.primary}
-        inactiveColor={colors.textSecondary}
-        theme={{ colors: { secondaryContainer: "transparent" } }}
-        barStyle={{ backgroundColor: colors.backgroundSecondary, borderTopColor: colors.textTertiary, borderTopWidth: 1 }}
-      />
-    );
+    return <BottomNavigation shifting compact navigationState={{ index, routes }} onIndexChange={setIndex} renderScene={renderScene} activeColor={colors.primary} inactiveColor={colors.textSecondary} theme={{ colors: { secondaryContainer: "transparent" } }} barStyle={{ backgroundColor: colors.backgroundSecondary, borderTopColor: colors.textTertiary, borderTopWidth: 1 }} />;
   }
 };
 

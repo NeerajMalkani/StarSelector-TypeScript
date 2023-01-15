@@ -4,25 +4,25 @@ export interface BasicProps {
   navigation: any;
 }
 
-
 export interface TypeMatch {
-  matchType: string
-  seriesAdWrapper: SeriesAdWrapper[]
+  matchType: string;
+  seriesAdWrapper: SeriesAdWrapper[];
 }
 
 export interface SeriesAdWrapper {
-  seriesMatches?: SeriesMatches
+  seriesMatches?: SeriesMatches;
 }
 
 export interface SeriesMatches {
-  seriesId: number
-  seriesName: string
-  matches: Match[]
+  seriesId: number;
+  seriesName: string;
+  matches: Match[];
 }
 
 export interface Match {
-  MatchInfo?: MatchInfo;
-  MatchScore?: MatchScore
+  matchInfo: MatchInfo;
+  MatchInfo: MatchInfo;
+  MatchScore?: MatchScore;
 }
 
 export interface MatchInfo {
@@ -30,7 +30,24 @@ export interface MatchInfo {
   seriesId?: number;
   seriesName?: string;
   matchFormat?: string;
-  startDate?: string;
+  startDate: string;
+  endDate?: string;
+  state?: string;
+  status?: string;
+  team1?: Team;
+  team2?: Team;
+  venueInfo?: VenueInfo;
+  currentBatTeamId?: number;
+  seriesStartDt?: string;
+  seriesEndDt?: string;
+}
+
+export interface matchInfo {
+  matchId?: number;
+  seriesId?: number;
+  seriesName?: string;
+  matchFormat?: string;
+  startDate: string;
   endDate?: string;
   state?: string;
   status?: string;

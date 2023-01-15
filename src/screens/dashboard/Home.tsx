@@ -2,10 +2,10 @@ import { StatusBar, View, Dimensions, ScrollView, RefreshControl } from "react-n
 import { BasicProps, Match, SeriesAdWrapper, TypeMatch } from "../../models/Props";
 import { Styles } from "../../styles/styles";
 import { useState, useEffect } from "react";
-import CarouselCardItem from "../../components/Cards";
+import { UpcomingCardItem } from "../../components/Cards";
 import Provider from "../../api/Provider";
 import Header from "../../components/Header";
-import { Text } from "react-native-paper";
+import { ActivityIndicator, Text } from "react-native-paper";
 
 export const SLIDER_WIDTH = Dimensions.get("window").width;
 export const ITEM_WIDTH = SLIDER_WIDTH;
@@ -13,6 +13,7 @@ export const ITEM_WIDTH = SLIDER_WIDTH;
 const Home = ({ theme }: BasicProps) => {
   const { multicolors, colors }: any = theme;
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
 
   const CreateMatches = (response: any) => {
@@ -28,6 +29,9 @@ const Home = ({ theme }: BasicProps) => {
           });
         }
       });
+      arrMatches.sort(function (a, b) {
+        return parseFloat(a.matchInfo.startDate) - parseFloat(b.matchInfo.startDate);
+      });
       setUpcomingMatches(arrMatches);
     }
   };
@@ -37,11 +41,13 @@ const Home = ({ theme }: BasicProps) => {
       .then((response) => {
         if (response && response.data && Array.isArray(response.data.typeMatches) && response.data.typeMatches.length > 0) {
           CreateMatches(response);
+          setIsLoading(false);
           setRefreshing(false);
         }
       })
       .catch((ex) => {
         console.log(ex);
+        setIsLoading(false);
         setRefreshing(false);
       });
   };
@@ -54,29 +60,36 @@ const Home = ({ theme }: BasicProps) => {
     <View style={[Styles.flex1, { paddingBottom: 104 }]}>
       <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
       <View style={[Styles.flex1, { backgroundColor: colors.background }]}>
-        <Header colors={colors} multicolors={multicolors} />
-        {upcomingMatches.length > 0 && (
-          <View style={[Styles.flexColumn]}>
-            <Text variant="titleLarge" style={[Styles.paddingHorizontal24, Styles.paddingTop16, Styles.paddingBottom0]}>
-              Upcoming Matches
-            </Text>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  colors={[theme.colors.primary]}
-                  refreshing={refreshing}
-                  onRefresh={() => {
-                    FetchMatchData();
-                  }}
-                />
-              }
-            >
-              {upcomingMatches.map((k, i) => {
-                return <CarouselCardItem key={i} item={k} colors={colors} multicolors={multicolors} isLast={i === upcomingMatches.length - 1 ? true : false} />;
-              })}
-            </ScrollView>
+        <Header colors={colors} multicolors={multicolors} title="Home" />
+        {isLoading ? (
+          <View style={[Styles.flex1, Styles.flexAlignCenter, Styles.flexJustifyCenter]}>
+            <ActivityIndicator animating={true} color={colors.primary} size={32} />
           </View>
+        ) : (
+          upcomingMatches.length > 0 && (
+            <View style={[Styles.flexColumn]}>
+              <Text variant="titleLarge" style={[Styles.paddingHorizontal24, Styles.paddingTop16, Styles.paddingBottom8]}>
+                Upcoming Matches
+              </Text>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    colors={[theme.colors.primary]}
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                      setIsLoading(true);
+                      FetchMatchData();
+                    }}
+                  />
+                }
+              >
+                {upcomingMatches.map((k, i) => {
+                  return <UpcomingCardItem key={i} item={k} colors={colors} multicolors={multicolors} isLast={i === upcomingMatches.length - 1 ? true : false} />;
+                })}
+              </ScrollView>
+            </View>
+          )
         )}
       </View>
     </View>

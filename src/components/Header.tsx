@@ -2,12 +2,12 @@ import { View } from "react-native";
 import { Avatar, IconButton, Text } from "react-native-paper";
 import { Styles } from "../styles/styles";
 
-const Header = ({ colors, multicolors }: any) => {
+const Header = ({ colors, multicolors, title }: any) => {
   return (
     <View style={[Styles.width100per, Styles.height64, { backgroundColor: colors.primary, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }]}>
       <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.padding4, Styles.paddingHorizontal24, { justifyContent: "space-between" }]}>
         <Text variant="headlineSmall" style={[{ color: multicolors.white }]}>
-          Home
+          {title}
         </Text>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
           <IconButton icon="wallet" iconColor={multicolors.white} size={32} onPress={() => console.log("Pressed")} />
