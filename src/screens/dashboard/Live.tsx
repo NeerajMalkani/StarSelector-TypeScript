@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
-import { StatusBar, View, Dimensions } from "react-native";
+import { StatusBar, View } from "react-native";
 import { Carousel, Pagination } from "react-native-snap-carousel";
 import Provider from "../../api/Provider";
 import { LiveCardItem } from "../../components/Cards";
 import Header from "../../components/Header";
 import { BasicProps, Match, SeriesAdWrapper, TypeMatch } from "../../models/Props";
 import { Styles } from "../../styles/styles";
-
-export const SLIDER_WIDTH = Dimensions.get("window").width;
-export const ITEM_WIDTH = SLIDER_WIDTH;
+import { deviceWidth } from "../../utils/Constants";
 
 const Live = ({ theme }: BasicProps) => {
   const { multicolors, colors }: any = theme;
@@ -66,7 +64,7 @@ const Live = ({ theme }: BasicProps) => {
       <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
       <Header colors={colors} multicolors={multicolors} title="Live" />
       <View>
-        <Carousel vertical={false} layout="default" layoutCardOffset={9} onSnapToItem={(index) => setIndex(index)} data={liveMatches} renderItem={RenderLiveCards} sliderWidth={SLIDER_WIDTH} itemWidth={ITEM_WIDTH} />
+        <Carousel vertical={false} layout="default" layoutCardOffset={9} onSnapToItem={(index) => setIndex(index)} data={liveMatches} renderItem={RenderLiveCards} sliderWidth={deviceWidth} itemWidth={deviceWidth} />
         <Pagination dotsLength={liveMatches.length} activeDotIndex={index} />
       </View>
     </View>

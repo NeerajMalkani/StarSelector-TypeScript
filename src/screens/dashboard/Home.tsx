@@ -1,4 +1,4 @@
-import { StatusBar, View, Dimensions, ScrollView, RefreshControl } from "react-native";
+import { StatusBar, View, ScrollView, RefreshControl } from "react-native";
 import { BasicProps, Match, SeriesAdWrapper, TypeMatch } from "../../models/Props";
 import { Styles } from "../../styles/styles";
 import { useState, useEffect } from "react";
@@ -6,9 +6,6 @@ import { UpcomingCardItem } from "../../components/Cards";
 import Provider from "../../api/Provider";
 import Header from "../../components/Header";
 import { ActivityIndicator, Text } from "react-native-paper";
-
-export const SLIDER_WIDTH = Dimensions.get("window").width;
-export const ITEM_WIDTH = SLIDER_WIDTH;
 
 const Home = ({ theme }: BasicProps) => {
   const { multicolors, colors }: any = theme;
@@ -43,6 +40,7 @@ const Home = ({ theme }: BasicProps) => {
           CreateMatches(response);
           setIsLoading(false);
           setRefreshing(false);
+        } else {
         }
       })
       .catch((ex) => {
@@ -50,6 +48,11 @@ const Home = ({ theme }: BasicProps) => {
         setIsLoading(false);
         setRefreshing(false);
       });
+  };
+
+  const onRefresh = () => {
+    setIsLoading(true);
+    FetchMatchData();
   };
 
   useEffect(() => {
@@ -71,19 +74,7 @@ const Home = ({ theme }: BasicProps) => {
               <Text variant="titleLarge" style={[Styles.paddingHorizontal24, Styles.paddingTop16, Styles.paddingBottom8]}>
                 Upcoming Matches
               </Text>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                  <RefreshControl
-                    colors={[theme.colors.primary]}
-                    refreshing={refreshing}
-                    onRefresh={() => {
-                      setIsLoading(true);
-                      FetchMatchData();
-                    }}
-                  />
-                }
-              >
+              <ScrollView key="scroll1" showsVerticalScrollIndicator={false} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={() => onRefresh} />}>
                 {upcomingMatches.map((k, i) => {
                   return <UpcomingCardItem key={i} item={k} colors={colors} multicolors={multicolors} isLast={i === upcomingMatches.length - 1 ? true : false} />;
                 })}
