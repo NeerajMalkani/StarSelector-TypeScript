@@ -10,8 +10,8 @@ const Header = ({ colors, multicolors, title }: any) => {
           {title}
         </Text>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
-          <IconButton icon="wallet" iconColor={multicolors.white} size={32} onPress={() => console.log("Pressed")} />
-          <IconButton icon="bell" iconColor={multicolors.white} size={32} style={[{ marginStart: -4 }]} onPress={() => console.log("Pressed")} />
+          <IconButton icon="wallet" iconColor={multicolors.white} size={26} onPress={() => console.log("Pressed")} />
+          <IconButton icon="bell" iconColor={multicolors.white} size={26} style={[{ marginStart: -4 }]} onPress={() => console.log("Pressed")} />
           <Avatar.Image size={40} style={[Styles.marginStart4, { backgroundColor: colors.primaryDark }]} source={{ uri: "https://cdn.pixabay.com/photo/2013/07/13/10/07/man-156584__340.png" }} />
         </View>
       </View>

@@ -3,7 +3,7 @@ import { BottomNavigation, withTheme } from "react-native-paper";
 import { useState } from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Home from "./dashboard/Home";
-import Live from "./dashboard/Live";
+import Search from "./dashboard/Search";
 import Bets from "./dashboard/Bets";
 import News from "./dashboard/News";
 import Profile from "./dashboard/Profile";
@@ -13,7 +13,7 @@ import { createIconSetFromIcoMoon } from "@expo/vector-icons";
 
 export const Icon = createIconSetFromIcoMoon(require("../selection.json"), "IcoMoon", "icomoon.ttf");
 export const navigationRef = createNavigationContainerRef();
-const DashboardScreen = ({ route, theme }: BasicProps) => {
+const DashboardScreen = ({ navigation, theme }: BasicProps) => {
   const { colors }: any = theme;
   const [index, setIndex] = useState(0);
   const [fontsLoaded] = useFonts({
@@ -21,7 +21,7 @@ const DashboardScreen = ({ route, theme }: BasicProps) => {
   });
   const [routes] = useState([
     { key: "home", title: "Home", focusedIcon: (props: any) => <Icon {...props} name="home-icon-silhouette" size={28} /> },
-    { key: "live", title: "Live", focusedIcon: (props: any) => <Icon {...props} name="show" size={28} /> },
+    { key: "search", title: "Search", focusedIcon: (props: any) => <Ionicons {...props} name="search" size={28} /> },
     { key: "bets", title: "Bets", focusedIcon: (props: any) => <Icon {...props} name="trophy" size={28} /> },
     { key: "news", title: "News", focusedIcon: (props: any) => <Ionicons {...props} name="newspaper" size={28} /> },
     { key: "profile", title: "Profile", focusedIcon: (props: any) => <Ionicons {...props} name="person" size={28} /> },
@@ -30,9 +30,9 @@ const DashboardScreen = ({ route, theme }: BasicProps) => {
   const renderScene = ({ route }: any) => {
     switch (route.key) {
       case "home":
-        return <Home theme={theme} route={null} navigation={null} />;
-      case "live":
-        return <Live theme={theme} route={null} navigation={null} />;
+        return <Home theme={theme} route={null} navigation={navigation} />;
+      case "search":
+        return <Search theme={theme} route={null} navigation={null} />;
       case "bets":
         return <Bets />;
       case "news":
