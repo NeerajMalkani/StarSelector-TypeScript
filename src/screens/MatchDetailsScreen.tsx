@@ -12,6 +12,8 @@ import Teams from "./matchdetails/Teams";
 
 const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   const matchID: number = route.params.matchID;
+  const team1ID: number = route.params.team1ID;
+  const team2ID: number = route.params.team2ID;
   navigation.setOptions({ title: route.params.matchName });
   const { colors, multicolors } = theme;
   const [index, setIndex] = useState(0);
@@ -29,7 +31,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
       case "info":
         return <MatchInfo theme={theme} route={null} navigation={null} matchID={matchID} />;
       case "teams":
-        return <Teams theme={theme} route={null} navigation={null} matchID={matchID} />;
+        return <Teams theme={theme} route={null} navigation={null} matchID={matchID} team1ID={team1ID} team2ID={team2ID}/>;
       case "live":
         return <Live theme={theme} route={null} navigation={null} matchID={matchID} />;
       case "scorecard":

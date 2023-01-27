@@ -73,7 +73,7 @@ export const LiveCardItem = ({ item, colors, navigation }: any) => {
     );
   };
   return (
-    <TouchableNativeFeedback onPress={() => navigation.navigate("MatchDetails", { matchID: item.matchInfo.matchId, matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName })}>
+    <TouchableNativeFeedback onPress={() => navigation.navigate("MatchDetails", { matchID: item.matchInfo.matchId, matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName, team1ID: item.matchInfo.team1.teamId, team2ID: item.matchInfo.team2.teamId })}>
       <View style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.margin16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}>
         <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.paddingStart16, Styles.height48, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
           <Text variant="bodyMedium" style={{ color: colors.textSecondary }}>
