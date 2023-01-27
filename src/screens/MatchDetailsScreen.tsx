@@ -11,11 +11,13 @@ import Scorecard from "./matchdetails/Scorecard";
 import Teams from "./matchdetails/Teams";
 
 const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
-  const matchID: number = route.params.matchID;
-  const team1ID: number = route.params.team1ID;
-  const team2ID: number = route.params.team2ID;
-  navigation.setOptions({ title: route.params.matchName });
   const { colors, multicolors } = theme;
+  const matchID = route.params.matchID;
+  const team1Name = route.params.team1Name;
+  const team2Name = route.params.team2Name;
+  const team1ID = route.params.team1ID;
+  const team2ID = route.params.team2ID;
+  navigation.setOptions({ title: route.params.matchName });
   const [index, setIndex] = useState(0);
 
   const [routes] = useState([
@@ -29,15 +31,15 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   const renderScene = ({ route }: any) => {
     switch (route.key) {
       case "info":
-        return <MatchInfo theme={theme} route={null} navigation={null} matchID={matchID} />;
+        return <MatchInfo theme={theme} matchID={matchID} />;
       case "teams":
-        return <Teams theme={theme} route={null} navigation={null} matchID={matchID} team1ID={team1ID} team2ID={team2ID}/>;
+        return <Teams theme={theme} matchID={matchID} team1ID={team1ID} team2ID={team2ID} team1Name={team1Name} team2Name={team2Name} />;
       case "live":
-        return <Live theme={theme} route={null} navigation={null} matchID={matchID} />;
+        return <Live />;
       case "scorecard":
-        return <Scorecard theme={theme} route={null} navigation={null} matchID={matchID} />;
+        return <Scorecard />;
       case "overs":
-        return <Overs theme={theme} route={null} navigation={null} matchID={matchID} />;
+        return <Overs />;
     }
   };
 

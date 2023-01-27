@@ -63,3 +63,12 @@ export interface MatchDetails {
   seriesStartDt: string;
   seriesEndDt: string;
 }
+
+export interface SinglePlayer {
+  id: string;
+  name: string;
+  role: string;
+  keeper: boolean;
+  faceImageId: string;
+  captain?: boolean;
+}

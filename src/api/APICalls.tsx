@@ -18,8 +18,8 @@ export const GetUpcomingMatches = (successCallback: Function, failureCallback: F
 export const GetLiveMatches = (successCallback: Function, failureCallback: Function) => {
   Provider.get("matches/list", { matchState: "live" })
     .then((response) => {
-      if ((response && response.data, 2)) {
-        successCallback(response);
+      if (response && response.data) {
+        successCallback(response, 2);
       } else {
         failureCallback(response.statusText);
       }
@@ -33,8 +33,23 @@ export const GetLiveMatches = (successCallback: Function, failureCallback: Funct
 export const GetMatchInfo = (params: any, successCallback: Function, failureCallback: Function) => {
   Provider.get("matches/get-info", { matchId: params.matchID })
     .then((response) => {
-      if ((response && response.data, 2)) {
+      if (response && response.data) {
         successCallback(response);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};
+
+export const GetMatchTeams = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("matches/get-team", { matchId: params.matchID, teamId: params.teamID })
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response, params.type);
       } else {
         failureCallback(response.statusText);
       }
