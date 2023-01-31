@@ -1,4 +1,4 @@
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 import { Avatar, Divider, List, Text } from "react-native-paper";
 import { useState, useEffect } from "react";
 import { Styles } from "../../styles/styles";
@@ -9,6 +9,7 @@ import { TabBar, TabView, SceneMap } from "react-native-tab-view";
 
 const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) => {
   const { colors, multicolors } = theme;
+  const [isLoading, setIsLoading] = useState(true);
   const [team1Playing11, setTeam1Playing11] = useState<SinglePlayer[]>([]);
   const [team1PlayingBench, setTeam1PlayingBench] = useState<SinglePlayer[]>([]);
   const [team2Playing11, setTeam2Playing11] = useState<SinglePlayer[]>([]);
@@ -18,8 +19,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
 
   const TeamSuccess = (response: any, type: number) => {
     if (response && response.data && Array.isArray(response.data.player)) {
-      const playing11: SinglePlayer[] = response.data.player[0].player;
-      const playingBench: SinglePlayer[] = response.data.player[1].player;
+      const playing11: SinglePlayer[] = response.data.player[0].player ? response.data.player[0].player : [];
+      const playingBench: SinglePlayer[] = response.data.player[1].player ? response.data.player[1].player : [];
       if (type === 1) {
         setTeam1Playing11(playing11);
         setTeam1PlayingBench(playingBench);
@@ -28,110 +29,99 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
         setTeam2PlayingBench(playingBench);
       }
     }
+    setIsLoading(false);
   };
 
-  const TeamFail = () => {};
+  const TeamFail = (errorMessage: string) => {
+    console.log(errorMessage);
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     GetMatchTeams({ matchID: matchID, teamID: team1ID, type: 1 }, TeamSuccess, TeamFail);
     GetMatchTeams({ matchID: matchID, teamID: team2ID, type: 2 }, TeamSuccess, TeamFail);
   }, []);
 
-  const CreateTeam1 = () => {
+  interface TeamProps {
+    playing11: SinglePlayer[];
+    bench: SinglePlayer[];
+  }
+
+  const CreateCaptian = () => {
     return (
-      <ScrollView style={[Styles.paddingHorizontal16]}>
-        <List.Subheader>Playing 11</List.Subheader>
-        {team1Playing11.map((k: SinglePlayer, i: number) => {
-          return (
-            <View key={i}>
-              <List.Item
-                title={k.name}
-                description={k.role}
-                right={() => {
-                  return (
-                    <View style={[Styles.flexRow]}>
-                      {k.captain && (
-                        <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.red }]}>
-                          <Text variant="titleSmall" style={[{ color: multicolors.white }]}>
-                            C
-                          </Text>
-                        </View>
-                      )}
-                      {k.keeper && (
-                        <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.yellow }]}>
-                          <Text variant="labelSmall" style={[{ color: multicolors.white }]}>
-                            WK
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  );
-                }}
-                left={() => <Avatar.Image size={42} source={{ uri: s3Path + k.faceImageId + ".png" }} />}
-              />
-              <Divider />
-            </View>
-          );
-        })}
-        <List.Subheader style={[Styles.marginTop12]}>Bench</List.Subheader>
-        {team1PlayingBench.map((k: SinglePlayer, i: number) => {
-          return (
-            <View key={i}>
-              <List.Item title={k.name} description={k.role} left={() => <Avatar.Image size={36} source={{ uri: s3Path + k.faceImageId + ".png" }} />} />
-              <Divider />
-            </View>
-          );
-        })}
-      </ScrollView>
+      <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.red }]}>
+        <Text variant="titleSmall" style={[{ color: multicolors.white }]}>
+          C
+        </Text>
+      </View>
     );
   };
 
-  const CreateTeam2 = () => {
+  const CreateWicketKeeper = () => {
     return (
-      <ScrollView style={[Styles.paddingHorizontal16]}>
-        <List.Subheader>Playing 11</List.Subheader>
-        {team2Playing11.map((k: SinglePlayer, i: number) => {
-          return (
-            <View key={i}>
-              <List.Item
-                title={k.name}
-                description={k.role}
-                right={() => {
-                  return (
-                    <View style={[Styles.flexRow]}>
-                      {k.captain && (
-                        <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.red }]}>
-                          <Text variant="titleSmall" style={[{ color: multicolors.white }]}>
-                            C
-                          </Text>
+      <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.yellow }]}>
+        <Text variant="labelSmall" style={[{ color: multicolors.white }]}>
+          WK
+        </Text>
+      </View>
+    );
+  };
+
+  const CreateTeam = ({ playing11, bench }: TeamProps) => {
+    return (
+      <View style={[Styles.flex1, Styles.paddingHorizontal16]}>
+        {isLoading ? (
+          <View style={[Styles.flex1, Styles.flexAlignCenter, Styles.flexJustifyCenter]}>
+            <ActivityIndicator animating={true} color={colors.primary} size={32} />
+          </View>
+        ) : (
+          <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={playing11.length > 0 && bench.length > 0 ? [0, 2] : playing11.length > 0 ? [0] : []}>
+            {playing11.length > 0 && (
+              <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
+                <Text variant="titleMedium">Playing 11</Text>
+                <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, { backgroundColor: colors.primary }]}></View>
+              </View>
+            )}
+            <View>
+              {playing11.map((k: SinglePlayer, i: number) => {
+                return (
+                  <View key={i}>
+                    <List.Item
+                      title={k.name}
+                      description={k.role}
+                      descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }}
+                      right={() => (
+                        <View style={[Styles.flexRow]}>
+                          {k.captain && <CreateCaptian />}
+                          {k.keeper && <CreateWicketKeeper />}
                         </View>
                       )}
-                      {k.keeper && (
-                        <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.yellow }]}>
-                          <Text variant="labelSmall" style={[{ color: multicolors.white }]}>
-                            WK
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  );
-                }}
-                left={() => <Avatar.Image size={42} source={{ uri: s3Path + k.faceImageId + ".png" }} />}
-              />
-              <Divider />
+                      left={() => <Avatar.Image size={42} source={{ uri: s3Path + k.faceImageId + ".png" }} />}
+                    />
+                    <Divider />
+                  </View>
+                );
+              })}
             </View>
-          );
-        })}
-        <List.Subheader style={[Styles.marginTop12]}>Bench</List.Subheader>
-        {team2PlayingBench.map((k: SinglePlayer, i: number) => {
-          return (
-            <View key={i}>
-              <List.Item title={k.name} description={k.role} left={() => <Avatar.Image size={36} source={{ uri: s3Path + k.faceImageId + ".png" }} />} />
-              <Divider />
+            {bench.length > 0 && (
+              <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
+                <Text variant="titleMedium">Bench</Text>
+                <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, { backgroundColor: colors.primary }]}></View>
+              </View>
+            )}
+            <View>
+              {bench.map((k: SinglePlayer, i: number) => {
+                return (
+                  <View key={i}>
+                    <List.Item title={k.name} description={k.role} left={() => <Avatar.Image size={36} source={{ uri: s3Path + k.faceImageId + ".png" }} />} />
+                    <Divider />
+                  </View>
+                );
+              })}
             </View>
-          );
-        })}
-      </ScrollView>
+          </ScrollView>
+        )}
+      </View>
     );
   };
 
@@ -141,11 +131,20 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
   ]);
 
   const renderScene = SceneMap({
-    team1: CreateTeam1,
-    team2: CreateTeam2,
+    team1: () => <CreateTeam playing11={team1Playing11} bench={team1PlayingBench} />,
+    team2: () => <CreateTeam playing11={team2Playing11} bench={team2PlayingBench} />,
   });
 
-  const renderTabBar = (props: any) => <TabBar {...props} tabStyle={{ width: deviceWidth / 2, paddingHorizontal: 18 }} scrollEnabled indicatorStyle={{ backgroundColor: colors.primary, height: 3 }} labelStyle={{ color: colors.text, textTransform: "capitalize" }} style={{ backgroundColor: colors.background }} />;
+  const renderTabBar = (props: any) => (
+    <TabBar
+      {...props}
+      tabStyle={{ width: deviceWidth / 2, paddingHorizontal: 18 }}
+      scrollEnabled
+      indicatorStyle={{ backgroundColor: colors.primary, height: 3 }}
+      labelStyle={{ color: colors.text, textTransform: "capitalize" }}
+      style={{ backgroundColor: colors.background }}
+    />
+  );
 
   return (
     <View style={[Styles.flex1]}>
