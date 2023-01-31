@@ -20,7 +20,7 @@ const DashboardScreen = ({ navigation, theme }: BasicProps) => {
     IcoMoon: require("../../assets/resources/fonts/icomoon.ttf"),
   });
   const [routes] = useState([
-    { key: "home", title: "Home", focusedIcon: (props: any) => <Icon {...props} name="home-icon-silhouette" size={28} /> },
+    { key: "home", title: "Home", focusedIcon: (props: any) => <Ionicons {...props} name="home" size={28} /> },
     { key: "search", title: "Search", focusedIcon: (props: any) => <Ionicons {...props} name="search" size={28} /> },
     { key: "bets", title: "Bets", focusedIcon: (props: any) => <Icon {...props} name="trophy" size={28} /> },
     { key: "news", title: "News", focusedIcon: (props: any) => <Ionicons {...props} name="newspaper" size={28} /> },

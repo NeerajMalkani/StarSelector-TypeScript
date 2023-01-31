@@ -88,7 +88,7 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
                   <View key={i}>
                     <List.Item
                       title={k.name}
-                      description={k.role}
+                      description={k.role ? k.role : "NA"}
                       descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }}
                       right={() => (
                         <View style={[Styles.flexRow]}>
@@ -113,7 +113,7 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
               {bench.map((k: SinglePlayer, i: number) => {
                 return (
                   <View key={i}>
-                    <List.Item title={k.name} description={k.role} left={() => <Avatar.Image size={36} source={{ uri: s3Path + k.faceImageId + ".png" }} />} />
+                    <List.Item title={k.name} description={k.role ? k.role : "NA"} descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }} left={() => <Avatar.Image size={36} source={{ uri: s3Path + k.faceImageId + ".png" }} />} />
                     <Divider />
                   </View>
                 );

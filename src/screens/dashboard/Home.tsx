@@ -21,20 +21,31 @@ const Home = ({ theme, navigation }: BasicProps) => {
   const CreateMatchesData = (response: any, type: number) => {
     if (response && response.data && Array.isArray(response.data.typeMatches)) {
       const arrMatches: Match[] = [];
+      const arrLiveMatches: Match[] = [];
       const typeMatches: TypeMatch[] = response.data.typeMatches;
       typeMatches.map((tm: TypeMatch, i: number) => {
         if (Array.isArray(tm.seriesAdWrapper) && tm.seriesAdWrapper.length > 0) {
           tm.seriesAdWrapper.map((sad: SeriesAdWrapper) => {
             if (sad.seriesMatches && Array.isArray(sad.seriesMatches.matches) && sad.seriesMatches.matches.length > 0) {
-              arrMatches.push(sad.seriesMatches.matches[0]);
+              if (sad.seriesMatches.matches[0].matchInfo.state === "In Progress") {
+                arrLiveMatches.push(sad.seriesMatches.matches[0]);
+              } else {
+                arrMatches.push(sad.seriesMatches.matches[0]);
+              }
             }
           });
         }
       });
-      arrMatches.sort(function (a, b) {
-        return parseFloat(a.matchInfo.startDate) - parseFloat(b.matchInfo.startDate);
-      });
-      type === 1 ? setUpcomingMatches(arrMatches) : setLiveMatches(arrMatches);
+
+      if (type === 1) {
+        arrMatches.sort(function (a, b) {
+          return parseFloat(a.matchInfo.startDate) - parseFloat(b.matchInfo.startDate);
+        });
+        setUpcomingMatches(arrMatches);
+      } else {
+        const allMatches = arrLiveMatches.concat(arrMatches);
+        setLiveMatches(allMatches);
+      }
       setIsCountdownRunning(true);
     }
   };
@@ -85,7 +96,15 @@ const Home = ({ theme, navigation }: BasicProps) => {
               </View>
               <View>
                 <Carousel vertical={false} layout="default" layoutCardOffset={9} onSnapToItem={(index) => setIndex(index)} data={liveMatches} renderItem={RenderLiveCards} sliderWidth={deviceWidth} itemWidth={deviceWidth} />
-                <Pagination dotsLength={liveMatches.length} activeDotIndex={index} dotColor={colors.primary} inactiveDotColor={colors.textSecondary} dotContainerStyle={{ marginHorizontal: 3 }} dotStyle={{ width: 10, height: 10, borderRadius: 5 }} containerStyle={[Styles.paddingVertical2]} />
+                <Pagination
+                  dotsLength={liveMatches.length}
+                  activeDotIndex={index}
+                  dotColor={colors.primary}
+                  inactiveDotColor={colors.textSecondary}
+                  dotContainerStyle={{ marginHorizontal: 3 }}
+                  dotStyle={{ width: 10, height: 10, borderRadius: 5 }}
+                  containerStyle={[Styles.paddingVertical2]}
+                />
               </View>
               <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
                 <Text variant="titleMedium" style={[Styles.paddingHorizontal24]}>
