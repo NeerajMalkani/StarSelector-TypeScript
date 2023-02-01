@@ -49,8 +49,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
 
   const CreateCaptian = () => {
     return (
-      <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.red }]}>
-        <Text variant="titleSmall" style={[{ color: multicolors.white }]}>
+      <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width40, Styles.height40, Styles.borderRadius12, { backgroundColor: multicolors.red }]}>
+        <Text variant="titleLarge" style={[{ color: multicolors.white }]}>
           C
         </Text>
       </View>
@@ -59,8 +59,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
 
   const CreateWicketKeeper = () => {
     return (
-      <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width24, Styles.height24, Styles.borderRadius12, { backgroundColor: multicolors.yellow }]}>
-        <Text variant="labelSmall" style={[{ color: multicolors.white }]}>
+      <View style={[Styles.flexJustifyCenter, Styles.flexAlignCenter, Styles.marginStart8, Styles.width40, Styles.height40, Styles.borderRadius12, { backgroundColor: multicolors.yellow }]}>
+        <Text variant="titleMedium" style={[{ color: multicolors.white }]}>
           WK
         </Text>
       </View>
@@ -91,7 +91,7 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
                       description={k.role ? k.role : "NA"}
                       descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }}
                       right={() => (
-                        <View style={[Styles.flexRow]}>
+                        <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
                           {k.captain && <CreateCaptian />}
                           {k.keeper && <CreateWicketKeeper />}
                         </View>

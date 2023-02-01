@@ -59,3 +59,18 @@ export const GetMatchTeams = (params: any, successCallback: Function, failureCal
       failureCallback(ex);
     });
 };
+
+export const GetMatchOvers = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("matches/get-overs", { matchId: params.matchID })
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response, params.type);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};
