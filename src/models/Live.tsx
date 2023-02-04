@@ -3,6 +3,7 @@ export interface BatsmanStriker {
     balls: number;
     runs: number;
     fours: number;
+    sixes: number;
     strkRate: string;
     name: string;
     nickName: string;
@@ -12,6 +13,8 @@ export interface BatsmanNonStriker {
     id: number;
     balls: number;
     runs: number;
+    fours: number;
+    sixes: number;
     strkRate: string;
     name: string;
     nickName: string;
@@ -21,6 +24,8 @@ export interface BowlerStriker {
     id: number;
     overs: string;
     runs: number;
+    maidens: number;
+    wickets: number;
     economy: string;
     name: string;
 }
@@ -29,6 +34,8 @@ export interface BowlerNonStriker {
     id: number;
     overs: string;
     runs: number;
+    maidens: number;
+    wickets: number;
     economy: string;
     name: string;
 }
@@ -72,6 +79,7 @@ export interface Miniscore {
     bowlerStriker: BowlerStriker;
     bowlerNonStriker: BowlerNonStriker;
     crr: number;
+    rrr: number;
     inningsNbr: string;
     lastWkt: string;
     curOvsStats: string;

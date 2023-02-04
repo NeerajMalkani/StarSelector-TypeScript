@@ -102,9 +102,9 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
           </Text>
         </View>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
-          <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary}}>{teamScore ? FormatScore(teamScore.inngs1?.runs, teamScore.inngs1?.wickets) : "0/0"}</Text>
+          <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary}}>{teamScore ? FormatScore(teamScore.inngs2 ? teamScore.inngs2?.runs : teamScore.inngs1?.runs, teamScore.inngs2 ? teamScore.inngs2?.wickets : teamScore.inngs1?.wickets) : "0/0"}</Text>
           <Text variant="bodySmall" style={[Styles.marginStart4, {color: colors.textSecondary}]}>
-            ({teamScore ? FormatOvers(teamScore.inngs1?.overs) : "0.0"})
+            ({teamScore ? FormatOvers(teamScore.inngs2 ? teamScore.inngs2?.overs : teamScore.inngs1?.overs) : "0.0"})
           </Text>
         </View>
       </View>
