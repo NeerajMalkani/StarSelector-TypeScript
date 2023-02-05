@@ -5,7 +5,6 @@ import { Team, TeamScore } from "../models/Props";
 import { Styles } from "../styles/styles";
 import { NoImage, s3Path } from "../utils/Constants";
 import { FormatOvers, FormatScore } from "../utils/Formatter";
-import { Icon } from "../screens/DashboardScreen";
 
 export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning, navigation }: any) => {
   const CreateTeam = (team: Team, index: number) => {
@@ -53,7 +52,22 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       >
         <Text variant="labelMedium">2.4k</Text>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
-          <Button compact mode="text" icon="information" labelStyle={{ marginStart: 4 }} onPress={() => {}}>
+          <Button
+            compact
+            mode="text"
+            icon="information"
+            labelStyle={{ marginStart: 4 }}
+            onPress={() => {
+              navigation.navigate("MatchDetails", {
+                matchID: item.matchInfo.matchId,
+                matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
+                team1ID: item.matchInfo.team1.teamId,
+                team2ID: item.matchInfo.team2.teamId,
+                team1Name: item.matchInfo.team1.teamName,
+                team2Name: item.matchInfo.team2.teamName,
+              });
+            }}
+          >
             INFO
           </Button>
           <Button compact mode="text" icon="handshake" labelStyle={{ marginStart: 4 }} textColor={colors.secondary} style={[Styles.marginStart8]} onPress={() => {}}>
@@ -102,8 +116,10 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
           </Text>
         </View>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
-          <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary}}>{teamScore ? FormatScore(teamScore.inngs2 ? teamScore.inngs2?.runs : teamScore.inngs1?.runs, teamScore.inngs2 ? teamScore.inngs2?.wickets : teamScore.inngs1?.wickets) : "0/0"}</Text>
-          <Text variant="bodySmall" style={[Styles.marginStart4, {color: colors.textSecondary}]}>
+          <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{ color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary }}>
+            {teamScore ? FormatScore(teamScore.inngs2 ? teamScore.inngs2?.runs : teamScore.inngs1?.runs, teamScore.inngs2 ? teamScore.inngs2?.wickets : teamScore.inngs1?.wickets) : "0/0"}
+          </Text>
+          <Text variant="bodySmall" style={[Styles.marginStart4, { color: colors.textSecondary }]}>
             ({teamScore ? FormatOvers(teamScore.inngs2 ? teamScore.inngs2?.overs : teamScore.inngs1?.overs) : "0.0"})
           </Text>
         </View>
@@ -120,10 +136,11 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
           team2ID: item.matchInfo.team2.teamId,
           team1Name: item.matchInfo.team1.teamName,
           team2Name: item.matchInfo.team2.teamName,
+          matchStatus: item.matchInfo.status,
         })
       }
     >
-      <View style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.margin16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}>
+      <View style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.marginHorizontal16, Styles.marginTop4, Styles.marginBottom16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}>
         <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.paddingStart16, Styles.height48, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
           <Text variant="bodyMedium" style={{ color: colors.textSecondary }}>
             {item.matchInfo.seriesName}

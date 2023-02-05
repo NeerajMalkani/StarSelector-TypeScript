@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { ActivityIndicator, View, ScrollView, RefreshControl } from "react-native";
 import { Divider, Text } from "react-native-paper";
 import { GetMatchOvers } from "../../api/APICalls";
+import NoData from "../../components/NoData";
+import SectionTitle from "../../components/SectionTitle";
 import { LiveDetails } from "../../models/Live";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 
-const Live = ({ matchID, theme }: any) => {
+const Live = ({ matchID, theme, matchStatus }: any) => {
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -14,7 +16,9 @@ const Live = ({ matchID, theme }: any) => {
   const scrollViewRef: any = useRef();
 
   const MatchLiveSuccess = (response: any) => {
-    setLiveDetails(response.data);
+    if (response.data && response.data.matchHeaders && response.data.miniscore) {
+      setLiveDetails(response.data);
+    }
     setRefreshing(false);
     setIsLoading(false);
   };
@@ -50,13 +54,12 @@ const Live = ({ matchID, theme }: any) => {
         ellipsizeMode="tail"
         style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter]}
       >
-        {title}
+        {title + (isStriker ? "*" : "")}
       </Text>
     );
   };
 
-  const ScroreOnBall = ({ key, score }: any) => {
-    console.log(score);
+  const ScroreOnBall = ({ index, score }: any) => {
     score = score ? score.toString() : "";
     let ballColor = colors.textSecondary;
     switch (true) {
@@ -83,7 +86,7 @@ const Live = ({ matchID, theme }: any) => {
         break;
     }
     return score === "... " || score === "..." || score === " ... " || score === "" || score === "  " ? null : (
-      <View key={key} style={[Styles.marginStart4, Styles.width24, Styles.height24, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 12, backgroundColor: ballColor }]}>
+      <View key={index} style={[Styles.marginStart4, Styles.width24, Styles.height24, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 12, backgroundColor: ballColor }]}>
         <Text variant="bodySmall" style={{ color: multicolors.white }}>
           {score}
         </Text>
@@ -97,13 +100,13 @@ const Live = ({ matchID, theme }: any) => {
         <View style={[Styles.flex1, Styles.flexAlignCenter, Styles.flexJustifyCenter]}>
           <ActivityIndicator animating={true} color={colors.primary} size={32} />
         </View>
-      ) : (
+      ) : liveDetails ? (
         <ScrollView style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={[2]} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}>
           <View style={[Styles.margin16, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
             <View style={[Styles.flexRow, { justifyContent: "space-between" }]}>
               <View style={[Styles.flexColumn]}>
                 <Text variant="titleMedium" style={{ color: colors.textSecondary }}>
-                  {liveDetails && liveDetails.miniscore.inningsScores[0].inningsScore[0].batTeamShortName}
+                  {liveDetails?.miniscore.inningsScores[0].inningsScore[0].batTeamShortName}
                 </Text>
                 <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
                   <Text variant="headlineMedium">{FormatScore(liveDetails?.miniscore.inningsScores[0].inningsScore[0].runs, liveDetails?.miniscore.inningsScores[0].inningsScore[0].wickets)}</Text>
@@ -126,11 +129,13 @@ const Live = ({ matchID, theme }: any) => {
               </View>
             </View>
             <Text variant="titleSmall" style={[Styles.marginTop12, { color: colors.primary }]}>
-              {liveDetails?.miniscore.custStatus}
+              {liveDetails?.miniscore.custStatus ? liveDetails?.miniscore.custStatus : matchStatus}
             </Text>
           </View>
+          <SectionTitle title="Last 12 Balls" colors={colors} />
           <ScrollView
             ref={scrollViewRef}
+            showsHorizontalScrollIndicator={false}
             onContentSizeChange={() => {
               if (scrollViewRef && scrollViewRef.current) {
                 scrollViewRef.current.scrollToEnd({ animated: true });
@@ -141,10 +146,11 @@ const Live = ({ matchID, theme }: any) => {
           >
             <View style={[Styles.flexRow, Styles.flex1, Styles.padding16]}>
               {liveDetails?.miniscore.curOvsStats.split(" ").map((k, i) => {
-                return <ScroreOnBall key={i} score={k} />;
+                return <ScroreOnBall key={i} index={i} score={k} />;
               })}
             </View>
           </ScrollView>
+          <SectionTitle title="Miniscore" colors={colors} />
           <View style={[Styles.margin16, Styles.marginTop0, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
             <View style={[Styles.flexRow]}>
               {CreateTableHeader("Batsman", false)}
@@ -155,22 +161,33 @@ const Live = ({ matchID, theme }: any) => {
               {CreateTableHeader("SR", true, true)}
             </View>
             <Divider style={[Styles.marginVertical8]} />
-            <View style={[Styles.flexRow]}>
-              {CreateTableCells(FormatScoreName(liveDetails?.miniscore.batsmanStriker.name), false, false, true)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanStriker.runs ? liveDetails.miniscore.batsmanStriker.runs : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanStriker.balls ? liveDetails.miniscore.batsmanStriker.balls : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanStriker.fours ? liveDetails.miniscore.batsmanStriker.fours : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanStriker.sixes ? liveDetails.miniscore.batsmanStriker.sixes : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanStriker.strkRate ? parseFloat(liveDetails.miniscore.batsmanStriker.strkRate).toFixed(2) : 0.0, true, true)}
-            </View>
+            {liveDetails?.miniscore.batsmanStriker.name && (
+              <View style={[Styles.flexRow]}>
+                {CreateTableCells(FormatScoreName(liveDetails?.miniscore.batsmanStriker.name), false, false, true)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanStriker.runs ? liveDetails.miniscore.batsmanStriker.runs : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanStriker.balls ? liveDetails.miniscore.batsmanStriker.balls : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanStriker.fours ? liveDetails.miniscore.batsmanStriker.fours : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanStriker.sixes ? liveDetails.miniscore.batsmanStriker.sixes : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanStriker.strkRate ? parseFloat(liveDetails.miniscore.batsmanStriker.strkRate).toFixed(2) : 0.0, true, true)}
+              </View>
+            )}
             <Divider />
-            <View style={[Styles.flexRow]}>
-              {CreateTableCells(FormatScoreName(liveDetails?.miniscore.batsmanNonStriker.name), false, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.runs ? liveDetails.miniscore.batsmanNonStriker.runs : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.balls ? liveDetails.miniscore.batsmanNonStriker.balls : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.fours ? liveDetails.miniscore.batsmanNonStriker.fours : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.sixes ? liveDetails.miniscore.batsmanNonStriker.sixes : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.strkRate ? parseFloat(liveDetails.miniscore.batsmanNonStriker.strkRate).toFixed(2) : 0.0, true, true)}
+            {liveDetails?.miniscore.batsmanNonStriker.name && (
+              <View style={[Styles.flexRow]}>
+                {CreateTableCells(FormatScoreName(liveDetails?.miniscore.batsmanNonStriker.name), false, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.runs ? liveDetails.miniscore.batsmanNonStriker.runs : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.balls ? liveDetails.miniscore.batsmanNonStriker.balls : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.fours ? liveDetails.miniscore.batsmanNonStriker.fours : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.sixes ? liveDetails.miniscore.batsmanNonStriker.sixes : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.batsmanNonStriker.strkRate ? parseFloat(liveDetails.miniscore.batsmanNonStriker.strkRate).toFixed(2) : 0.0, true, true)}
+              </View>
+            )}
+            <Divider />
+            <View style={[Styles.flexRow, Styles.paddingTop8]}>
+              <Text variant="bodyMedium">Patnership </Text>
+              <Text variant="titleSmall" style={{ color: colors.primary }}>
+                {liveDetails?.miniscore.partnership}
+              </Text>
             </View>
           </View>
 
@@ -184,26 +201,31 @@ const Live = ({ matchID, theme }: any) => {
               {CreateTableHeader("E", true, true)}
             </View>
             <Divider style={[Styles.marginVertical8]} />
-            <View style={[Styles.flexRow]}>
-              {CreateTableCells(FormatScoreName(liveDetails?.miniscore.bowlerStriker.name), false, false, true)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerStriker.overs ? liveDetails.miniscore.bowlerStriker.overs : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerStriker.runs ? liveDetails.miniscore.bowlerStriker.runs : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerStriker.maidens ? liveDetails.miniscore.bowlerStriker.maidens : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerStriker.wickets ? liveDetails.miniscore.bowlerStriker.wickets : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerStriker.economy ? parseFloat(liveDetails.miniscore.bowlerStriker.economy).toFixed(2) : 0.0, true, true)}
-            </View>
+            {liveDetails?.miniscore.bowlerStriker.name && (
+              <View style={[Styles.flexRow]}>
+                {CreateTableCells(FormatScoreName(liveDetails?.miniscore.bowlerStriker.name), false, false, true)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerStriker.overs ? liveDetails.miniscore.bowlerStriker.overs : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerStriker.runs ? liveDetails.miniscore.bowlerStriker.runs : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerStriker.maidens ? liveDetails.miniscore.bowlerStriker.maidens : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerStriker.wickets ? liveDetails.miniscore.bowlerStriker.wickets : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerStriker.economy ? parseFloat(liveDetails.miniscore.bowlerStriker.economy).toFixed(2) : 0.0, true, true)}
+              </View>
+            )}
             <Divider />
-            <View style={[Styles.flexRow]}>
-              {CreateTableCells(FormatScoreName(liveDetails?.miniscore.bowlerNonStriker.name), false, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.overs ? liveDetails.miniscore.bowlerNonStriker.overs : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.runs ? liveDetails.miniscore.bowlerNonStriker.runs : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.maidens ? liveDetails.miniscore.bowlerNonStriker.maidens : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.wickets ? liveDetails.miniscore.bowlerNonStriker.wickets : 0, true, false)}
-              {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.economy ? parseFloat(liveDetails.miniscore.bowlerNonStriker.economy).toFixed(2) : 0.0, true, true)}
-            </View>
+            {liveDetails?.miniscore.bowlerNonStriker.name && (
+              <View style={[Styles.flexRow]}>
+                {CreateTableCells(FormatScoreName(liveDetails?.miniscore.bowlerNonStriker.name), false, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.overs ? liveDetails.miniscore.bowlerNonStriker.overs : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.runs ? liveDetails.miniscore.bowlerNonStriker.runs : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.maidens ? liveDetails.miniscore.bowlerNonStriker.maidens : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.wickets ? liveDetails.miniscore.bowlerNonStriker.wickets : 0, true, false)}
+                {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.economy ? parseFloat(liveDetails.miniscore.bowlerNonStriker.economy).toFixed(2) : 0.0, true, true)}
+              </View>
+            )}
+            <Divider />
           </View>
         </ScrollView>
-      )}
+      ) : <NoData iconName="earth" title="No Live feed" subtitle="Match has not started yet or has been interupted"/>}
     </View>
   );
 };

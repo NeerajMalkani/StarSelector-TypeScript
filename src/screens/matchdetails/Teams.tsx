@@ -6,6 +6,8 @@ import { GetMatchTeams } from "../../api/APICalls";
 import { deviceWidth, s3Path } from "../../utils/Constants";
 import { SinglePlayer } from "../../models/MatchDetails";
 import { TabBar, TabView, SceneMap } from "react-native-tab-view";
+import SectionTitle from "../../components/SectionTitle";
+import NoData from "../../components/NoData";
 
 const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) => {
   const { colors, multicolors } = theme;
@@ -19,8 +21,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
 
   const TeamSuccess = (response: any, type: number) => {
     if (response && response.data && Array.isArray(response.data.player)) {
-      const playing11: SinglePlayer[] = response.data.player[0].player ? response.data.player[0].player : [];
-      const playingBench: SinglePlayer[] = response.data.player[1].player ? response.data.player[1].player : [];
+      const playing11: SinglePlayer[] = response.data.player[0] ? response.data.player[0].player : [];
+      const playingBench: SinglePlayer[] = response.data.player[1] ? response.data.player[1].player : [];
       if (type === 1) {
         setTeam1Playing11(playing11);
         setTeam1PlayingBench(playingBench);
@@ -75,13 +77,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
             <ActivityIndicator animating={true} color={colors.primary} size={32} />
           </View>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={playing11.length > 0 && bench.length > 0 ? [0, 2] : playing11.length > 0 ? [0] : []}>
-            {playing11.length > 0 && (
-              <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
-                <Text variant="titleMedium">Playing 11</Text>
-                <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, { backgroundColor: colors.primary }]}></View>
-              </View>
-            )}
+          <ScrollView style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={playing11.length > 0 && bench.length > 0 ? [0, 2] : playing11.length > 0 ? [0] : []}>
+            {playing11.length > 0 && <SectionTitle title="Playing 11" colors={colors} />}
             <View>
               {playing11.map((k: SinglePlayer, i: number) => {
                 return (
@@ -103,12 +100,7 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
                 );
               })}
             </View>
-            {bench.length > 0 && (
-              <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
-                <Text variant="titleMedium">Bench</Text>
-                <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, { backgroundColor: colors.primary }]}></View>
-              </View>
-            )}
+            {bench.length > 0 && <SectionTitle title="Bench" colors={colors} />}
             <View>
               {bench.map((k: SinglePlayer, i: number) => {
                 return (
@@ -131,8 +123,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
   ]);
 
   const renderScene = SceneMap({
-    team1: () => <CreateTeam playing11={team1Playing11} bench={team1PlayingBench} />,
-    team2: () => <CreateTeam playing11={team2Playing11} bench={team2PlayingBench} />,
+    team1: () => (team1Playing11.length === 0 ? <NoData iconName="account-group" title="Teams not decided yet" subtitle="Playing 11 will be decided once the toss is completed" /> : <CreateTeam playing11={team1Playing11} bench={team1PlayingBench} />),
+    team2: () => (team2Playing11.length === 0 ? <NoData iconName="account-group" title="Teams not decided yet" subtitle="Playing 11 will be decided once the toss is completed" /> : <CreateTeam playing11={team2Playing11} bench={team2PlayingBench} />),
   });
 
   const renderTabBar = (props: any) => (

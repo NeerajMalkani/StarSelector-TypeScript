@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StatusBar, View } from "react-native";
 import { withTheme } from "react-native-paper";
 import { TabView, TabBar } from "react-native-tab-view";
@@ -17,7 +17,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   const team2Name = route.params.team2Name;
   const team1ID = route.params.team1ID;
   const team2ID = route.params.team2ID;
-  navigation.setOptions({ title: route.params.matchName });
+  const matchStatus = route.params.matchStatus;
   const [index, setIndex] = useState(0);
 
   const [routes] = useState([
@@ -35,13 +35,17 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
       case "teams":
         return <Teams theme={theme} matchID={matchID} team1ID={team1ID} team2ID={team2ID} team1Name={team1Name} team2Name={team2Name} />;
       case "live":
-        return <Live theme={theme} matchID={matchID}/>;
+        return <Live theme={theme} matchID={matchID} matchStatus={matchStatus}/>;
       case "scorecard":
         return <Scorecard />;
       case "overs":
         return <Overs />;
     }
   };
+
+  useEffect(() => {
+    navigation.setOptions({ title: route.params.matchName });
+  }, []);
 
   const renderTabBar = (props: any) => <TabBar {...props} tabStyle={{ width: "auto", paddingHorizontal: 18 }} scrollEnabled indicatorStyle={{ backgroundColor: multicolors.white, height: 3 }} style={{ backgroundColor: colors.primary }} />;
 

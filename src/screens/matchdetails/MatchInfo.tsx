@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
 import { Text } from "react-native-paper";
 import { GetMatchInfo } from "../../api/APICalls";
+import SectionTitle from "../../components/SectionTitle";
 import { MatchDetails } from "../../models/MatchDetails";
 import { Styles } from "../../styles/styles";
 
@@ -45,13 +46,8 @@ const MatchInfo = ({ matchID, theme }: any) => {
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
-            <Text variant="titleMedium" style={[Styles.paddingHorizontal24]}>
-              Match Details
-            </Text>
-            <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, Styles.marginStart24, { backgroundColor: colors.primary }]}></View>
-          </View>
-          <View style={[Styles.margin16, Styles.border1, { borderColor: colors.seperator }]}>
+          <SectionTitle title="Match Details" colors={colors} />
+          <View style={[Styles.margin16, Styles.marginTop0, Styles.border1, { borderColor: colors.seperator }]}>
             {matchInfo && (
               <View>
                 <RenderTableRow title="Series" value={matchInfo.seriesName} showBorder={true} />
@@ -62,13 +58,8 @@ const MatchInfo = ({ matchID, theme }: any) => {
               </View>
             )}
           </View>
-          <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
-            <Text variant="titleMedium" style={[Styles.paddingHorizontal24]}>
-              Match Officials
-            </Text>
-            <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, Styles.marginStart24, { backgroundColor: colors.primary }]}></View>
-          </View>
-          <View style={[Styles.margin16, Styles.border1, { borderColor: colors.seperator }]}>
+          <SectionTitle title="Match Officials" colors={colors} />
+          <View style={[Styles.margin16, Styles.marginTop0, Styles.border1, { borderColor: colors.seperator }]}>
             {matchInfo && (
               <View>
                 <RenderTableRow title="Umpire 1" value={matchInfo.umpire1.name ? matchInfo.umpire1.name : "NA"} showBorder={true}/>
@@ -78,13 +69,8 @@ const MatchInfo = ({ matchID, theme }: any) => {
               </View>
             )}
           </View>
-          <View style={[Styles.paddingVertical16, { backgroundColor: colors.background }]}>
-            <Text variant="titleMedium" style={[Styles.paddingHorizontal24]}>
-              Match Venue
-            </Text>
-            <View style={[Styles.width56, Styles.height4, Styles.marginTop4, Styles.borderRadius2, Styles.marginStart24, { backgroundColor: colors.primary }]}></View>
-          </View>
-          <View style={[Styles.margin16, Styles.border1, { borderColor: colors.seperator }]}>
+          <SectionTitle title="Match Venue" colors={colors} />
+          <View style={[Styles.margin16, Styles.marginTop0, Styles.border1, { borderColor: colors.seperator }]}>
             {matchInfo && (
               <View>
                 <RenderTableRow title="Ground" value={matchInfo.venueInfo.ground ? matchInfo.venueInfo.ground : "NA"} showBorder={true} />
