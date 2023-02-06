@@ -21,8 +21,8 @@ const Teams = ({ theme, matchID, team1ID, team2ID, team1Name, team2Name }: any) 
 
   const TeamSuccess = (response: any, type: number) => {
     if (response && response.data && Array.isArray(response.data.player)) {
-      const playing11: SinglePlayer[] = response.data.player[0] ? response.data.player[0].player : [];
-      const playingBench: SinglePlayer[] = response.data.player[1] ? response.data.player[1].player : [];
+      const playing11: SinglePlayer[] = response.data.player[0] && response.data.player[0].player ? response.data.player[0].player : [];
+      const playingBench: SinglePlayer[] = response.data.player[1] && response.data.player[1].player ? response.data.player[1].player : [];
       if (type === 1) {
         setTeam1Playing11(playing11);
         setTeam1PlayingBench(playingBench);

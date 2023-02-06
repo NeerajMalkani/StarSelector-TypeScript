@@ -1,6 +1,7 @@
 import { Image, TouchableNativeFeedback, View } from "react-native";
 import { Button, IconButton, Text } from "react-native-paper";
 import CountDown from "react-native-countdown-component";
+import TextTicker from "react-native-text-ticker";
 import { Team, TeamScore } from "../models/Props";
 import { Styles } from "../styles/styles";
 import { NoImage, s3Path } from "../utils/Constants";
@@ -48,7 +49,16 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
         {CreateTeam(item.matchInfo.team2, 2)}
       </View>
       <View
-        style={[Styles.flexRow, Styles.flexAlignCenter, Styles.marginTop8, Styles.paddingHorizontal16, Styles.height48, Styles.width100per, Styles.borderRadius8, { justifyContent: "space-between", backgroundColor: colors.backgroundLight }]}
+        style={[
+          Styles.flexRow,
+          Styles.flexAlignCenter,
+          Styles.marginTop8,
+          Styles.paddingHorizontal16,
+          Styles.height48,
+          Styles.width100per,
+          Styles.borderRadius8,
+          { justifyContent: "space-between", backgroundColor: colors.backgroundLight },
+        ]}
       >
         <Text variant="labelMedium">2.4k</Text>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
@@ -140,11 +150,23 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
         })
       }
     >
-      <View style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.marginHorizontal16, Styles.marginTop4, Styles.marginBottom16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.paddingStart16, Styles.height48, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
-          <Text variant="bodyMedium" style={{ color: colors.textSecondary }}>
-            {item.matchInfo.seriesName}
-          </Text>
+      <View
+        style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.marginHorizontal16, Styles.marginTop4, Styles.marginBottom16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}
+      >
+        <View
+          style={[
+            Styles.flexRow,
+            Styles.flex4,
+            Styles.flexAlignCenter,
+            Styles.paddingStart16,
+            Styles.height48,
+            Styles.borderBottom1,
+            { justifyContent: "space-between", borderBottomColor: colors.seperator, overflow: "hidden" },
+          ]}
+        >
+          <View style={[Styles.flex3, Styles.paddingEnd8]}>
+            <TextTicker style={{ color: colors.textSecondary }} loop={false} duration={10000} marqueeDelay={1000}>{item.matchInfo.seriesName}</TextTicker>
+          </View>
           <MatchStateFormatter matchState={item.matchInfo.state} />
         </View>
         <View style={[Styles.paddingHorizontal16, Styles.paddingVertical8]}>
