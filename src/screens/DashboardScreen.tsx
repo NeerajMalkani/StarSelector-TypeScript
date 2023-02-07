@@ -13,7 +13,7 @@ import { createIconSetFromIcoMoon } from "@expo/vector-icons";
 
 export const Icon = createIconSetFromIcoMoon(require("../selection.json"), "IcoMoon", "icomoon.ttf");
 export const navigationRef = createNavigationContainerRef();
-const DashboardScreen = ({ navigation, theme }: BasicProps) => {
+const DashboardScreen = ({  navigation, theme }: BasicProps) => {
   const { colors }: any = theme;
   const [index, setIndex] = useState(0);
   const [fontsLoaded] = useFonts({
