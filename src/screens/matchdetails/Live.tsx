@@ -6,6 +6,7 @@ import NoData from "../../components/NoData";
 import SectionTitle from "../../components/SectionTitle";
 import { LiveDetails, OverSep } from "../../models/Live";
 import { Styles } from "../../styles/styles";
+import { GetMaxValuFromJSONArray } from "../../utils/Common";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 
 const Live = ({ matchID, theme, matchStatus }: any) => {
@@ -48,7 +49,12 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   const CreateTableCells = (title: string | number | undefined, isCenter: boolean, isSR?: boolean, isStriker?: boolean) => {
     return (
-      <Text variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodySmall"} numberOfLines={1} ellipsizeMode="tail" style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter]}>
+      <Text
+        variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}
+      >
         {title + (isStriker ? "*" : "")}
       </Text>
     );
@@ -70,7 +76,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
       case score === "Wd" || score === "wd":
         ballColor = multicolors.yellow;
         break;
-      case score === "Nb" || score === "nb":
+      case score === "Nb" || score === "nb" || score === "N" || score === "n":
         ballColor = multicolors.yellow;
         break;
       case score === "B" || score === "b" || score === "by" || score === "Lb" || score === "lb":
@@ -90,46 +96,49 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
   };
 
   const CreateOvers = ({ overs }: any) => {
+    const maxInningsID = GetMaxValuFromJSONArray(overs, "inningsId");
     return (
       <View>
         {overs.map((k: OverSep, i: number) => {
           return (
-            <View key={i} style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
-              <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
-                <Text variant="bodyLarge" style={[Styles.marginEnd12]}>
-                  Over {parseInt(k.overNum.toString())}
-                </Text>
-                <View style={[Styles.flexRow]}>
-                  {k.overSummary.split(" ").map((v, d) => {
-                    return <ScroreOnBall key={d} index={d} score={v} />;
-                  })}
-                  <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
-                    {"(" + (k.runs ? k.runs : "0") + " runs)"}
+            maxInningsID.inningsId === k.inningsId && (
+              <View key={i} style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
+                <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
+                  <Text variant="titleMedium" style={[Styles.marginEnd12]}>
+                    Over {parseInt(k.overNum.toString())}
                   </Text>
+                  <View style={[Styles.flexRow]}>
+                    {k.overSummary.split(" ").map((v, d) => {
+                      return <ScroreOnBall key={d} index={d} score={v} />;
+                    })}
+                    <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
+                      {"(" + (k.runs ? k.runs : "0") + " runs)"}
+                    </Text>
+                  </View>
+                </View>
+                <View style={[Styles.flexRow, Styles.padding8, { justifyContent: "space-between" }]}>
+                  <View>
+                    <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
+                      Batsmen
+                    </Text>
+                    <Text variant="bodyMedium">{k.ovrBatNames[0]}</Text>
+                    <Text variant="bodyMedium">{k.ovrBatNames[1]}</Text>
+                  </View>
+                  <View style={[Styles.flexAlignEnd]}>
+                    <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
+                      Bowler
+                    </Text>
+                    <Text variant="bodyMedium">{k.ovrBowlNames[0]}</Text>
+                  </View>
+                </View>
+                <View style={[Styles.flexRow, Styles.borderTop1, Styles.padding8, { justifyContent: "space-between", borderTopColor: colors.seperator }]}>
+                  <Text variant="bodyLarge" style={{ color: colors.textSecondary }}>
+                    Total
+                  </Text>
+                  <Text variant="bodyLarge">{FormatScore(k.score, k.wickets)}</Text>
                 </View>
               </View>
-              <View style={[Styles.flexRow, Styles.padding8, { justifyContent: "space-between" }]}>
-                <View>
-                  <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
-                    Batsmen
-                  </Text>
-                  <Text variant="bodyLarge">{k.ovrBatNames[0]}</Text>
-                  <Text variant="bodyLarge">{k.ovrBatNames[1]}</Text>
-                </View>
-                <View style={[Styles.flexAlignEnd]}>
-                  <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
-                    Bowler
-                  </Text>
-                  <Text variant="bodyLarge">{k.ovrBowlNames[0]}</Text>
-                </View>
-              </View>
-              <View style={[Styles.flexRow, Styles.borderTop1, Styles.padding8, { justifyContent: "space-between", borderTopColor: colors.seperator }]}>
-                <Text variant="bodyLarge" style={{ color: colors.textSecondary }}>
-                  Total
-                </Text>
-                <Text variant="bodyLarge">{FormatScore(k.score, k.wickets)}</Text>
-              </View>
-            </View>
+            )
           );
         })}
       </View>
@@ -179,7 +188,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
           <SectionTitle title="Last Wicket" colors={colors} />
           <View style={[Styles.margin16, Styles.marginTop0, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
             <Text variant="titleSmall" style={{ color: multicolors.red }}>
-              {liveDetails?.miniscore.lastWkt}
+              {liveDetails?.miniscore.lastWkt ? liveDetails?.miniscore.lastWkt : "No wicket has been taken yet"}
             </Text>
           </View>
           <SectionTitle title="Last 12 Balls" colors={colors} />
@@ -234,14 +243,13 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                 </View>
               )}
               <Divider />
-              <View style={[Styles.flexRow, Styles.paddingTop8]}>
+              <View style={[Styles.flexRow, Styles.paddingTop8, Styles.paddingEnd16, { justifyContent: "flex-end" }]}>
                 <Text variant="bodyMedium">Patnership </Text>
                 <Text variant="titleSmall" style={{ color: colors.primary }}>
                   {liveDetails?.miniscore.partnership}
                 </Text>
               </View>
-            </View>
-            <View style={[Styles.margin16, Styles.marginTop0, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
+              <Divider style={[Styles.marginVertical12]} />
               <View style={[Styles.flexRow]}>
                 {CreateTableHeader("Bowler", false)}
                 {CreateTableHeader("O", true)}
