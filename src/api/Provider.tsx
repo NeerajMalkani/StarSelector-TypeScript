@@ -1,7 +1,7 @@
 import axios from "axios";
 import { X_RapidAPI_Host, X_RapidAPI_Key } from "./Credentials";
 
-export const BASE_URL = "https://unofficial-cricbuzz.p.rapidapi.com/";
+export const BASE_URL = "https://crickbuzz-official-apis.p.rapidapi.com/";
 
 class Provider {
   get(resource: any, params?: any | undefined, headers?: any | undefined) {

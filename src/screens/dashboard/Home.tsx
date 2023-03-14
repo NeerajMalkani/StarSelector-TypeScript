@@ -70,7 +70,8 @@ const Home = ({ theme, navigation }: BasicProps) => {
   };
 
   useEffect(() => {
-    GetUpcomingMatches(MatchesSuccess, MatchesFail);
+    //GetUpcomingMatches(MatchesSuccess, MatchesFail);
+    console.log("here1");
     GetLiveMatches(MatchesSuccess, MatchesFail);
   }, []);
 
