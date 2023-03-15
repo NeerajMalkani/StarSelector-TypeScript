@@ -2,7 +2,7 @@ import { Image, TouchableNativeFeedback, View } from "react-native";
 import { Button, IconButton, Text } from "react-native-paper";
 import CountDown from "react-native-countdown-component";
 import TextTicker from "react-native-text-ticker";
-import { Team, TeamScore } from "../models/Props";
+import { Team, TeamScore } from "../models/Matches";
 import { Styles } from "../styles/styles";
 import { NoImage, s3Path } from "../utils/Constants";
 import { FormatOvers, FormatScore } from "../utils/Formatter";
@@ -119,13 +119,13 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
   const CreateTeam = (team: Team, teamScore: TeamScore, currentBatTeamId: number) => {
     return (
       <View style={[Styles.width100per, Styles.paddingVertical4, Styles.flexRow, { justifyContent: "space-between" }]}>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
+        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex3]}>
           <Image source={{ uri: team.imageId ? s3Path + team.imageId + ".png" : NoImage }} style={[Styles.width32, Styles.height24]} />
-          <Text variant="titleSmall" style={[Styles.marginStart8]}>
+          <Text variant="titleSmall" numberOfLines={1} ellipsizeMode="tail" style={[Styles.marginStart8, Styles.marginEnd8]}>
             {team.teamName}
           </Text>
         </View>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
+        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex1]}>
           <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{ color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary }}>
             {teamScore ? FormatScore(teamScore.inngs2 ? teamScore.inngs2?.runs : teamScore.inngs1?.runs, teamScore.inngs2 ? teamScore.inngs2?.wickets : teamScore.inngs1?.wickets) : "0/0"}
           </Text>
@@ -173,8 +173,8 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
           <Text variant="bodyMedium">{item.matchInfo.matchDesc}</Text>
         </View>
         <View style={[Styles.flexColumn, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter]}>
-          {CreateTeam(item.matchInfo.team1, item.matchScore?.team1Score, item.matchInfo.currentBatTeamId)}
-          {CreateTeam(item.matchInfo.team2, item.matchScore?.team2Score, item.matchInfo.currentBatTeamId)}
+          {CreateTeam(item.matchInfo.team1, item.matchScore?.team1Score, item.matchInfo.currBatTeamId)}
+          {CreateTeam(item.matchInfo.team2, item.matchScore?.team2Score, item.matchInfo.currBatTeamId)}
         </View>
         <View style={[Styles.paddingHorizontal16, Styles.paddingVertical12, Styles.borderTop1, { borderTopColor: colors.seperator }]}>
           <Text variant="bodyMedium" numberOfLines={1} ellipsizeMode="tail">

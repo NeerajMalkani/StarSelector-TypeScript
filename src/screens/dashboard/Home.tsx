@@ -1,14 +1,15 @@
 import { StatusBar, View, ScrollView, RefreshControl } from "react-native";
-import { BasicProps, Match, SeriesAdWrapper, TypeMatch } from "../../models/Props";
+import { BasicProps } from "../../models/Props";
 import { Styles } from "../../styles/styles";
 import { useState, useEffect } from "react";
 import { LiveCardItem, UpcomingCardItem } from "../../components/Cards";
 import Header from "../../components/Header";
 import { ActivityIndicator, Text } from "react-native-paper";
-import { GetLiveMatches, GetUpcomingMatches } from "../../api/APICalls";
+import { GetFeaturedMatches, GetUpcomingMatches } from "../../api/APICalls";
 import { Carousel, Pagination } from "react-native-snap-carousel";
 import { deviceWidth } from "../../utils/Constants";
 import SectionTitle from "../../components/SectionTitle";
+import { Match, Matches } from "../../models/Matches";
 
 const Home = ({ theme, navigation }: BasicProps) => {
   const { multicolors, colors }: any = theme;
@@ -20,33 +21,13 @@ const Home = ({ theme, navigation }: BasicProps) => {
   const [liveMatches, setLiveMatches] = useState<Match[]>([]);
 
   const CreateMatchesData = (response: any, type: number) => {
-    if (response && response.data && Array.isArray(response.data.typeMatches)) {
-      const arrMatches: Match[] = [];
-      const arrLiveMatches: Match[] = [];
-      const typeMatches: TypeMatch[] = response.data.typeMatches;
-      typeMatches.map((tm: TypeMatch, i: number) => {
-        if (Array.isArray(tm.seriesAdWrapper) && tm.seriesAdWrapper.length > 0) {
-          tm.seriesAdWrapper.map((sad: SeriesAdWrapper) => {
-            if (sad.seriesMatches && Array.isArray(sad.seriesMatches.matches) && sad.seriesMatches.matches.length > 0) {
-              if (sad.seriesMatches.matches[0].matchInfo.state === "In Progress") {
-                arrLiveMatches.push(sad.seriesMatches.matches[0]);
-              } else {
-                arrMatches.push(sad.seriesMatches.matches[0]);
-              }
-            }
-          });
-        }
+    if (response && response.data && Array.isArray(response.data.matches)) {
+      const objFeaturedMatches: Matches[] = response.data.matches;
+      let arrMatches: Match[] = [];
+      objFeaturedMatches.map((match: Matches) => {
+        arrMatches.push(match.match);
       });
-
-      if (type === 1) {
-        arrMatches.sort(function (a, b) {
-          return parseFloat(a.matchInfo.startDate) - parseFloat(b.matchInfo.startDate);
-        });
-        setUpcomingMatches(arrMatches);
-      } else {
-        const allMatches = arrLiveMatches.concat(arrMatches);
-        setLiveMatches(allMatches);
-      }
+      setLiveMatches(arrMatches);
       setIsCountdownRunning(true);
     }
   };
@@ -66,18 +47,17 @@ const Home = ({ theme, navigation }: BasicProps) => {
   const onRefresh = () => {
     setIsCountdownRunning(false);
     setRefreshing(true);
-    GetLiveMatches(MatchesSuccess, MatchesFail);
+    GetFeaturedMatches(MatchesSuccess, MatchesFail);
   };
-
-  useEffect(() => {
-    //GetUpcomingMatches(MatchesSuccess, MatchesFail);
-    console.log("here1");
-    GetLiveMatches(MatchesSuccess, MatchesFail);
-  }, []);
 
   const RenderLiveCards = ({ item }: any) => {
     return <LiveCardItem item={item} colors={colors} multicolors={multicolors} navigation={navigation} />;
   };
+
+  useEffect(() => {
+    //GetUpcomingMatches(MatchesSuccess, MatchesFail);
+    GetFeaturedMatches(MatchesSuccess, MatchesFail);
+  }, []);
 
   return (
     <View style={[Styles.flex1]}>
@@ -89,20 +69,12 @@ const Home = ({ theme, navigation }: BasicProps) => {
             <ActivityIndicator animating={true} color={colors.primary} size={32} />
           </View>
         ) : (
-          upcomingMatches.length > 0 && (
+          liveMatches.length > 0 && (
             <ScrollView key="scroll1" showsVerticalScrollIndicator={false} stickyHeaderIndices={[2]} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}>
               <SectionTitle title="Featured Matches" colors={colors} />
               <View>
                 <Carousel vertical={false} layout="default" layoutCardOffset={9} onSnapToItem={(index) => setIndex(index)} data={liveMatches} renderItem={RenderLiveCards} sliderWidth={deviceWidth} itemWidth={deviceWidth} />
-                <Pagination
-                  dotsLength={liveMatches.length}
-                  activeDotIndex={index}
-                  dotColor={colors.primary}
-                  inactiveDotColor={colors.textSecondary}
-                  dotContainerStyle={{ marginHorizontal: 3 }}
-                  dotStyle={{ width: 10, height: 10, borderRadius: 5 }}
-                  containerStyle={[Styles.paddingVertical2]}
-                />
+                <Pagination dotsLength={liveMatches.length} activeDotIndex={index} dotColor={colors.primary} inactiveDotColor={colors.textSecondary} dotContainerStyle={{ marginHorizontal: 3 }} dotStyle={{ width: 10, height: 10, borderRadius: 5 }} containerStyle={[Styles.paddingVertical2]} />
               </View>
               <SectionTitle title="Join the Contest" colors={colors} />
               <View>

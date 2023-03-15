@@ -15,10 +15,9 @@ export const GetUpcomingMatches = (successCallback: Function, failureCallback: F
     });
 };
 
-export const GetLiveMatches = (successCallback: Function, failureCallback: Function) => {
+export const GetFeaturedMatches = (successCallback: Function, failureCallback: Function) => {
   Provider.get("home")
     .then((response) => {
-      console.log(response);
       if (response && response.data) {
         successCallback(response, 2);
       } else {
