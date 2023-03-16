@@ -1,25 +1,10 @@
 import Provider from "./Provider";
 
-export const GetUpcomingMatches = (successCallback: Function, failureCallback: Function) => {
-  Provider.get("matches/list", { matchState: "upcoming" })
-    .then((response) => {
-      if (response && response.data) {
-        successCallback(response, 1);
-      } else {
-        failureCallback(response.statusText);
-      }
-    })
-    .catch((ex) => {
-      console.log(ex);
-      failureCallback(ex);
-    });
-};
-
 export const GetFeaturedMatches = (successCallback: Function, failureCallback: Function) => {
   Provider.get("home")
     .then((response) => {
       if (response && response.data) {
-        successCallback(response, 2);
+        successCallback(response);
       } else {
         failureCallback(response.statusText);
       }
@@ -29,9 +14,22 @@ export const GetFeaturedMatches = (successCallback: Function, failureCallback: F
       failureCallback(ex);
     });
 };
-
-export const GetMatchInfo = (params: any, successCallback: Function, failureCallback: Function) => {
-  Provider.get("matches/get-info", { matchId: params.matchID })
+export const GetLiveMatches = (successCallback: Function, failureCallback: Function) => {
+  Provider.get("matches/live")
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};
+export const GetUpcomingMatches = (successCallback: Function, failureCallback: Function) => {
+  Provider.get("matches/upcoming")
     .then((response) => {
       if (response && response.data) {
         successCallback(response);
@@ -45,11 +43,25 @@ export const GetMatchInfo = (params: any, successCallback: Function, failureCall
     });
 };
 
-export const GetMatchTeams = (params: any, successCallback: Function, failureCallback: Function) => {
-  Provider.get("matches/get-team", { matchId: params.matchID, teamId: params.teamID })
+export const GetMatchInfo = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("match/" + params.matchID)
     .then((response) => {
       if (response && response.data) {
-        successCallback(response, params.type);
+        successCallback(response);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};
+export const GetMatchTeams = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("match/" + params.matchID + "/squads")
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response);
       } else {
         failureCallback(response.statusText);
       }

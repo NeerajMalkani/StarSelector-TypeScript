@@ -2,10 +2,11 @@ import { Image, TouchableNativeFeedback, View } from "react-native";
 import { Button, IconButton, Text } from "react-native-paper";
 import CountDown from "react-native-countdown-component";
 import TextTicker from "react-native-text-ticker";
+import moment from "moment";
 import { Team, TeamScore } from "../models/Matches";
 import { Styles } from "../styles/styles";
 import { NoImage, s3Path } from "../utils/Constants";
-import { FormatOvers, FormatScore } from "../utils/Formatter";
+import { FormatMatchState, FormatOvers, FormatScore } from "../utils/Formatter";
 
 export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning, navigation }: any) => {
   const CreateTeam = (team: Team, index: number) => {
@@ -21,6 +22,16 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       </View>
     );
   };
+  const OnMatchInfoClick = () => {
+    navigation.navigate("MatchDetails", {
+      matchID: item.matchInfo.matchId,
+      matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
+      team1ID: item.matchInfo.team1.teamId,
+      team2ID: item.matchInfo.team2.teamId,
+      team1Name: item.matchInfo.team1.teamName,
+      team2Name: item.matchInfo.team2.teamName,
+    });
+  };
   return (
     <View style={[Styles.borderRadius8, Styles.margin16, Styles.marginTop2, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}>
       <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.paddingStart16, Styles.height48, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
@@ -35,49 +46,22 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       <View style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
         {CreateTeam(item.matchInfo.team1, 1)}
         <View>
-          <CountDown
+          {/* <CountDown
             running={isCountdownRunning}
             until={(item.matchInfo.startDate - new Date().getTime()) / 1000}
             timeLabelStyle={{ color: colors.text }}
             timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }}
             digitTxtStyle={{ color: colors.primary }}
             digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }}
-            onFinish={() => console.log("finished")}
             size={12}
-          />
+          /> */}
         </View>
         {CreateTeam(item.matchInfo.team2, 2)}
       </View>
-      <View
-        style={[
-          Styles.flexRow,
-          Styles.flexAlignCenter,
-          Styles.marginTop8,
-          Styles.paddingHorizontal16,
-          Styles.height48,
-          Styles.width100per,
-          Styles.borderRadius8,
-          { justifyContent: "space-between", backgroundColor: colors.backgroundLight },
-        ]}
-      >
+      <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.marginTop8, Styles.paddingHorizontal16, Styles.height48, Styles.width100per, Styles.borderRadius8, { justifyContent: "space-between", backgroundColor: colors.backgroundLight }]}>
         <Text variant="labelMedium">2.4k</Text>
         <View style={[Styles.flexRow, Styles.flexAlignCenter]}>
-          <Button
-            compact
-            mode="text"
-            icon="information"
-            labelStyle={{ marginStart: 4 }}
-            onPress={() => {
-              navigation.navigate("MatchDetails", {
-                matchID: item.matchInfo.matchId,
-                matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
-                team1ID: item.matchInfo.team1.teamId,
-                team2ID: item.matchInfo.team2.teamId,
-                team1Name: item.matchInfo.team1.teamName,
-                team2Name: item.matchInfo.team2.teamName,
-              });
-            }}
-          >
+          <Button compact mode="text" icon="information" labelStyle={{ marginStart: 4 }} onPress={OnMatchInfoClick}>
             INFO
           </Button>
           <Button compact mode="text" icon="handshake" labelStyle={{ marginStart: 4 }} textColor={colors.secondary} style={[Styles.marginStart8]} onPress={() => {}}>
@@ -90,32 +74,6 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
 };
 
 export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => {
-  const MatchStateFormatter = ({ matchState }: any) => {
-    let stateBgColor = multicolors.red;
-    let stateText = "";
-    switch (matchState) {
-      case "In Progress":
-        stateBgColor = multicolors.green;
-        stateText = "Live";
-        break;
-      case "Complete":
-        stateBgColor = multicolors.yellow;
-        stateText = "Finished";
-        break;
-      default:
-        stateBgColor = multicolors.red;
-        stateText = matchState;
-        break;
-    }
-    return (
-      <View style={[Styles.paddingHorizontal8, Styles.paddingVertical4, Styles.marginEnd16, Styles.borderRadius4, { backgroundColor: stateBgColor }]}>
-        <Text variant="bodySmall" style={{ color: multicolors.white }}>
-          {stateText}
-        </Text>
-      </View>
-    );
-  };
-
   const CreateTeam = (team: Team, teamScore: TeamScore, currentBatTeamId: number) => {
     return (
       <View style={[Styles.width100per, Styles.paddingVertical4, Styles.flexRow, { justifyContent: "space-between" }]}>
@@ -136,38 +94,27 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
       </View>
     );
   };
+  const OnCardClick = () => {
+    navigation.navigate("MatchDetails", {
+      matchID: item.matchInfo.matchId,
+      matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
+      team1ID: item.matchInfo.team1.teamId,
+      team2ID: item.matchInfo.team2.teamId,
+      team1Name: item.matchInfo.team1.teamName,
+      team2Name: item.matchInfo.team2.teamName,
+      matchStatus: item.matchInfo.status,
+    });
+  };
   return (
-    <TouchableNativeFeedback
-      onPress={() =>
-        navigation.navigate("MatchDetails", {
-          matchID: item.matchInfo.matchId,
-          matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
-          team1ID: item.matchInfo.team1.teamId,
-          team2ID: item.matchInfo.team2.teamId,
-          team1Name: item.matchInfo.team1.teamName,
-          team2Name: item.matchInfo.team2.teamName,
-          matchStatus: item.matchInfo.status,
-        })
-      }
-    >
-      <View
-        style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.marginHorizontal16, Styles.marginTop4, Styles.marginBottom16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}
-      >
-        <View
-          style={[
-            Styles.flexRow,
-            Styles.flex4,
-            Styles.flexAlignCenter,
-            Styles.paddingStart16,
-            Styles.height48,
-            Styles.borderBottom1,
-            { justifyContent: "space-between", borderBottomColor: colors.seperator, overflow: "hidden" },
-          ]}
-        >
+    <TouchableNativeFeedback onPress={OnCardClick}>
+      <View style={[Styles.borderRadius8, Styles.marginHorizontal12, Styles.marginHorizontal16, Styles.marginTop4, Styles.marginBottom16, { elevation: 7, backgroundColor: colors.backgroundTertiary }]}>
+        <View style={[Styles.flexRow, Styles.flex4, Styles.flexAlignCenter, Styles.paddingStart16, Styles.height48, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator, overflow: "hidden" }]}>
           <View style={[Styles.flex3, Styles.paddingEnd8]}>
-            <TextTicker style={{ color: colors.textSecondary }} loop={false} duration={10000} marqueeDelay={1000}>{item.matchInfo.seriesName}</TextTicker>
+            <TextTicker style={{ color: colors.textSecondary }} loop={false} duration={10000} marqueeDelay={1000}>
+              {item.matchInfo.seriesName}
+            </TextTicker>
           </View>
-          <MatchStateFormatter matchState={item.matchInfo.state} />
+          <FormatMatchState matchState={item.matchInfo.state} multicolors={multicolors} />
         </View>
         <View style={[Styles.paddingHorizontal16, Styles.paddingVertical8]}>
           <Text variant="bodyMedium">{item.matchInfo.matchDesc}</Text>
@@ -178,7 +125,7 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
         </View>
         <View style={[Styles.paddingHorizontal16, Styles.paddingVertical12, Styles.borderTop1, { borderTopColor: colors.seperator }]}>
           <Text variant="bodyMedium" numberOfLines={1} ellipsizeMode="tail">
-            {item.matchInfo.status}
+            {item.matchInfo.status ? item.matchInfo.status : "The match starts at " + moment(new Date(parseFloat(item.matchInfo.startDate))).format("MMM Do YYYY, h:mm:ss a")}
           </Text>
         </View>
       </View>

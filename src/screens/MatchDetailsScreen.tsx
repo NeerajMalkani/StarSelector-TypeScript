@@ -33,7 +33,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
       case "info":
         return <MatchInfo theme={theme} matchID={matchID} />;
       case "teams":
-        return <Teams theme={theme} matchID={matchID} team1ID={team1ID} team2ID={team2ID} team1Name={team1Name} team2Name={team2Name} />;
+        return <Teams theme={theme} matchID={matchID} team1Name={team1Name} team2Name={team2Name} />;
       case "live":
         return <Live theme={theme} matchID={matchID} matchStatus={matchStatus}/>;
       case "scorecard":
