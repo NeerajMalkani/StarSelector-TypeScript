@@ -91,7 +91,7 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
                           {k.keeper && <CreateWicketKeeper />}
                         </View>
                       )}
-                      left={() => <Avatar.Image size={42} source={{ uri: s3Path + k.faceImageId + ".png" }} />}
+                      left={() => <Avatar.Image size={42} source={{ uri: s3Path.replace("{faceid}", k.faceImageId.toString()) }} />}
                     />
                     <Divider />
                   </View>
@@ -103,7 +103,7 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
               {bench.map((k: Bench, i: number) => {
                 return (
                   <View key={i}>
-                    <List.Item title={k.name} description={k.role ? k.role : "NA"} descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }} left={() => <Avatar.Image size={36} source={{ uri: s3Path + k.faceImageId + ".png" }} />} />
+                    <List.Item title={k.name} description={k.role ? k.role : "NA"} descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }} left={() => <Avatar.Image size={36} source={{ uri: s3Path.replace("{faceid}", k.faceImageId.toString()) }} />} />
                     <Divider />
                   </View>
                 );

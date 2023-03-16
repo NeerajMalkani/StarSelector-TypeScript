@@ -16,7 +16,7 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
           {team.teamName}
         </Text>
         <View style={[index === 1 ? Styles.flexRow : Styles.flexRowReverse, Styles.flexAlignCenter]}>
-          <Image source={{ uri: team.imageId ? s3Path + team.imageId + ".png" : NoImage }} style={[Styles.width32, Styles.height24, index === 1 ? Styles.marginEnd8 : Styles.marginStart8]} />
+          <Image source={{ uri: team.imageId ? s3Path.replace("{faceid}", team.imageId.toString()) : NoImage }} style={[Styles.width32, Styles.height24, index === 1 ? Styles.marginEnd8 : Styles.marginStart8]} />
           <Text variant="labelSmall">{team.teamSName}</Text>
         </View>
       </View>
@@ -78,7 +78,7 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
     return (
       <View style={[Styles.width100per, Styles.paddingVertical4, Styles.flexRow, { justifyContent: "space-between" }]}>
         <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex3]}>
-          <Image source={{ uri: team.imageId ? s3Path + team.imageId + ".png" : NoImage }} style={[Styles.width32, Styles.height24]} />
+          <Image source={{ uri: team.imageId ? s3Path.replace("{faceid}", team.imageId.toString()) : NoImage }} style={[Styles.width32, Styles.height24]} />
           <Text variant="titleSmall" numberOfLines={1} ellipsizeMode="tail" style={[Styles.marginStart8, Styles.marginEnd8]}>
             {team.teamName}
           </Text>
