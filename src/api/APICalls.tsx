@@ -71,9 +71,8 @@ export const GetMatchTeams = (params: any, successCallback: Function, failureCal
       failureCallback(ex);
     });
 };
-
-export const GetMatchOvers = (params: any, successCallback: Function, failureCallback: Function) => {
-  Provider.get("matches/get-overs", { matchId: params.matchID })
+export const GetMatchCommentry = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("match/" + params.matchID + "/commentary")
     .then((response) => {
       if (response && response.data) {
         successCallback(response, params.type);

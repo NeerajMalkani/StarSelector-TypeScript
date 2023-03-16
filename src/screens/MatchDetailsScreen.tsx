@@ -15,8 +15,6 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   const matchID = route.params.matchID;
   const team1Name = route.params.team1Name;
   const team2Name = route.params.team2Name;
-  const team1ID = route.params.team1ID;
-  const team2ID = route.params.team2ID;
   const matchStatus = route.params.matchStatus;
   const [index, setIndex] = useState(0);
 
@@ -35,7 +33,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
       case "teams":
         return <Teams theme={theme} matchID={matchID} team1Name={team1Name} team2Name={team2Name} />;
       case "live":
-        return <Live theme={theme} matchID={matchID} matchStatus={matchStatus}/>;
+        return <Live theme={theme} matchID={matchID} matchStatus={matchStatus} />;
       case "scorecard":
         return <Scorecard />;
       case "overs":

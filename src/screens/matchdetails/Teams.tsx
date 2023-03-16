@@ -18,16 +18,18 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
   const [team2PlayingBench, setTeam2PlayingBench] = useState<Bench[]>([]);
 
   const [index, setIndex] = useState(0);
-  console.log(matchID);
+
+  let squadTitle = "Squad";
 
   const TeamSuccess = (response: any) => {
     if (response && response.data) {
       const objSquads: Squads = response.data;
       objSquads.team1.players.playingXI = response.data.team1.players["playing XI"] ? response.data.team1.players["playing XI"] : [];
       objSquads.team2.players.playingXI = response.data.team2.players["playing XI"] ? response.data.team2.players["playing XI"] : [];
-      setTeam1Playing11(objSquads.team1.players.playingXI.length > 0 ? objSquads.team1.players.playingXI : (objSquads.team1.players.Squad.length > 0 ? objSquads.team1.players.Squad : []));
+      squadTitle = objSquads.team1.players.playingXI.length > 0 ? "Playing 11" : "Squad";
+      setTeam1Playing11(objSquads.team1.players.playingXI.length > 0 ? objSquads.team1.players.playingXI : objSquads.team1.players.Squad.length > 0 ? objSquads.team1.players.Squad : []);
       setTeam1PlayingBench(objSquads.team1.players.bench ? objSquads.team1.players.bench : []);
-      setTeam2Playing11(objSquads.team2.players.playingXI.length > 0 ? objSquads.team2.players.playingXI : (objSquads.team2.players.Squad.length > 0 ? objSquads.team2.players.Squad : []));
+      setTeam2Playing11(objSquads.team2.players.playingXI.length > 0 ? objSquads.team2.players.playingXI : objSquads.team2.players.Squad.length > 0 ? objSquads.team2.players.Squad : []);
       setTeam2PlayingBench(objSquads.team2.players.bench ? objSquads.team2.players.bench : []);
     }
     setIsLoading(false);
@@ -76,7 +78,7 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
           </View>
         ) : (
           <ScrollView style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={playing11.length > 0 && bench.length > 0 ? [0, 2] : playing11.length > 0 ? [0] : []}>
-            {playing11.length > 0 && <SectionTitle title="Playing 11" colors={colors} />}
+            {playing11.length > 0 && <SectionTitle title={squadTitle} colors={colors} />}
             <View>
               {playing11.map((k: PlayingXI, i: number) => {
                 return (
@@ -125,9 +127,7 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
     team2: () => (team2Playing11.length === 0 ? <NoData iconName="account-group" title="Teams not decided yet" subtitle="Playing 11 will be decided once the toss is completed" /> : <CreateTeam playing11={team2Playing11} bench={team2PlayingBench} />),
   });
 
-  const renderTabBar = (props: any) => (
-    <TabBar {...props} tabStyle={{ width: deviceWidth / 2, paddingHorizontal: 18 }} scrollEnabled indicatorStyle={{ backgroundColor: colors.primary, height: 3 }} labelStyle={{ color: colors.text, textTransform: "capitalize" }} style={{ backgroundColor: colors.background }} />
-  );
+  const renderTabBar = (props: any) => <TabBar {...props} tabStyle={{ width: deviceWidth / 2, paddingHorizontal: 18 }} scrollEnabled indicatorStyle={{ backgroundColor: colors.primary, height: 3 }} labelStyle={{ color: colors.text, textTransform: "capitalize" }} style={{ backgroundColor: colors.background }} />;
 
   return (
     <View style={[Styles.flex1]}>

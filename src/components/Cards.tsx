@@ -26,8 +26,6 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
     navigation.navigate("MatchDetails", {
       matchID: item.matchInfo.matchId,
       matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
-      team1ID: item.matchInfo.team1.teamId,
-      team2ID: item.matchInfo.team2.teamId,
       team1Name: item.matchInfo.team1.teamName,
       team2Name: item.matchInfo.team2.teamName,
     });
@@ -45,17 +43,7 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       </View>
       <View style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
         {CreateTeam(item.matchInfo.team1, 1)}
-        <View>
-          {/* <CountDown
-            running={isCountdownRunning}
-            until={(item.matchInfo.startDate - new Date().getTime()) / 1000}
-            timeLabelStyle={{ color: colors.text }}
-            timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }}
-            digitTxtStyle={{ color: colors.primary }}
-            digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }}
-            size={12}
-          /> */}
-        </View>
+        <View>{/* <CountDown running={isCountdownRunning} until={(item.matchInfo.startDate - new Date().getTime()) / 1000} timeLabelStyle={{ color: colors.text }} timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }} digitTxtStyle={{ color: colors.primary }} digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }} size={12} /> */}</View>
         {CreateTeam(item.matchInfo.team2, 2)}
       </View>
       <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.marginTop8, Styles.paddingHorizontal16, Styles.height48, Styles.width100per, Styles.borderRadius8, { justifyContent: "space-between", backgroundColor: colors.backgroundLight }]}>
@@ -98,8 +86,6 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
     navigation.navigate("MatchDetails", {
       matchID: item.matchInfo.matchId,
       matchName: item.matchInfo.team1.teamSName + " vs " + item.matchInfo.team2.teamSName,
-      team1ID: item.matchInfo.team1.teamId,
-      team2ID: item.matchInfo.team2.teamId,
       team1Name: item.matchInfo.team1.teamName,
       team2Name: item.matchInfo.team2.teamName,
       matchStatus: item.matchInfo.status,
