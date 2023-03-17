@@ -23,8 +23,9 @@ const Home = ({ theme, navigation }: BasicProps) => {
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
 
   const [index, setIndex] = useState(0);
-  const [isCountdownRunning, setIsCountdownRunning] = useState(true);
+  const [isCountdownRunning, setIsCountdownRunning] = useState(false);
 
+  /*#region Featured Matches */
   const FeaturedLiveMatchesSuccess = (response: any) => {
     if (response && response.data && Array.isArray(response.data.typeMatches)) {
       const objLiveMatches: TypeMatch[] = response.data.typeMatches;
@@ -65,7 +66,9 @@ const Home = ({ theme, navigation }: BasicProps) => {
     setFeaturedLoaded(true);
     setRefreshing(false);
   };
+  /*#endregion */
 
+  /*#region Upcoming Matches */
   const UpcomingMatchesSuccess = (response: any) => {
     if (response && response.data && Array.isArray(response.data.typeMatches)) {
       const objUpcomingMatches: TypeMatch[] = response.data.typeMatches;
@@ -91,7 +94,8 @@ const Home = ({ theme, navigation }: BasicProps) => {
     setUpcomingLoaded(true);
     setRefreshing(false);
   };
-
+  /*#endregion */
+  
   const onRefresh = () => {
     setIsCountdownRunning(false);
     setRefreshing(true);

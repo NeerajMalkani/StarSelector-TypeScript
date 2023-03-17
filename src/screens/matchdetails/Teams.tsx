@@ -24,6 +24,8 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
   const TeamSuccess = (response: any) => {
     if (response && response.data) {
       const objSquads: Squads = response.data;
+      routes[0].title = objSquads.team1.team.teamName;
+      routes[1].title = objSquads.team2.team.teamName;
       objSquads.team1.players.playingXI = response.data.team1.players["playing XI"] ? response.data.team1.players["playing XI"] : [];
       objSquads.team2.players.playingXI = response.data.team2.players["playing XI"] ? response.data.team2.players["playing XI"] : [];
       squadTitle = objSquads.team1.players.playingXI.length > 0 ? "Playing 11" : "Squad";

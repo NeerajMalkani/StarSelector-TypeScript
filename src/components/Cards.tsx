@@ -43,7 +43,17 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       </View>
       <View style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
         {CreateTeam(item.matchInfo.team1, 1)}
-        <View>{/* <CountDown running={isCountdownRunning} until={(item.matchInfo.startDate - new Date().getTime()) / 1000} timeLabelStyle={{ color: colors.text }} timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }} digitTxtStyle={{ color: colors.primary }} digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }} size={12} /> */}</View>
+        <View>
+          <CountDown
+            running={isCountdownRunning}
+            until={(item.matchInfo.startDate - new Date().getTime()) / 1000}
+            timeLabelStyle={{ color: colors.text }}
+            timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }}
+            digitTxtStyle={{ color: colors.primary }}
+            digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }}
+            size={12}
+          />
+        </View>
         {CreateTeam(item.matchInfo.team2, 2)}
       </View>
       <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.marginTop8, Styles.paddingHorizontal16, Styles.height48, Styles.width100per, Styles.borderRadius8, { justifyContent: "space-between", backgroundColor: colors.backgroundLight }]}>
@@ -65,13 +75,13 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
   const CreateTeam = (team: Team, teamScore: TeamScore, currentBatTeamId: number) => {
     return (
       <View style={[Styles.width100per, Styles.paddingVertical4, Styles.flexRow, { justifyContent: "space-between" }]}>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex3]}>
+        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex4]}>
           <Image source={{ uri: team.imageId ? s3Path.replace("{faceid}", team.imageId.toString()) : NoImage }} style={[Styles.width32, Styles.height24]} />
           <Text variant="titleSmall" numberOfLines={1} ellipsizeMode="tail" style={[Styles.marginStart8, Styles.marginEnd8]}>
             {team.teamName}
           </Text>
         </View>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex1]}>
+        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex2]}>
           <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{ color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary }}>
             {teamScore ? FormatScore(teamScore.inngs2 ? teamScore.inngs2?.runs : teamScore.inngs1?.runs, teamScore.inngs2 ? teamScore.inngs2?.wickets : teamScore.inngs1?.wickets) : "0/0"}
           </Text>

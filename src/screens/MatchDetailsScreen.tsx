@@ -35,7 +35,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
       case "live":
         return <Live theme={theme} matchID={matchID} matchStatus={matchStatus} />;
       case "scorecard":
-        return <Scorecard />;
+        return <Scorecard theme={theme} matchID={matchID}/>;
       case "overs":
         return <Overs />;
     }
