@@ -86,7 +86,7 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
                 return (
                   <View key={i}>
                     <List.Item
-                      title={k.name}
+                      title={k.fullName}
                       description={k.role ? k.role : "NA"}
                       descriptionStyle={{ color: colors.textSecondary, fontSize: 12 }}
                       right={() => (

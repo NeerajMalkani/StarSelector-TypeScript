@@ -44,15 +44,7 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       <View style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
         {CreateTeam(item.matchInfo.team1, 1)}
         <View>
-          <CountDown
-            running={isCountdownRunning}
-            until={(item.matchInfo.startDate - new Date().getTime()) / 1000}
-            timeLabelStyle={{ color: colors.text }}
-            timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }}
-            digitTxtStyle={{ color: colors.primary }}
-            digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }}
-            size={12}
-          />
+          <CountDown running={isCountdownRunning} until={(item.matchInfo.startDate - new Date().getTime()) / 1000} timeLabelStyle={{ color: colors.text }} timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }} digitTxtStyle={{ color: colors.primary }} digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }} size={12} />
         </View>
         {CreateTeam(item.matchInfo.team2, 2)}
       </View>
@@ -81,7 +73,7 @@ export const LiveCardItem = ({ item, colors, multicolors, navigation }: any) => 
             {team.teamName}
           </Text>
         </View>
-        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex2]}>
+        <View style={[Styles.flexRow, Styles.flexAlignCenter, Styles.flex1_5]}>
           <Text variant={team.teamId === currentBatTeamId ? "titleLarge" : "bodyLarge"} style={{ color: team.teamId === currentBatTeamId ? colors.text : colors.textSecondary }}>
             {teamScore ? FormatScore(teamScore.inngs2 ? teamScore.inngs2?.runs : teamScore.inngs1?.runs, teamScore.inngs2 ? teamScore.inngs2?.wickets : teamScore.inngs1?.wickets) : "0/0"}
           </Text>

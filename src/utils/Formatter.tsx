@@ -18,7 +18,7 @@ export const FormatScore = (runs?: number, wickets?: number) => {
 export const FormatScoreName = (name?: string) => {
   let nameFormatted: string | undefined = "";
   let splittedName: Array<string> = name ? name.split(" ") : [];
-  nameFormatted = splittedName.length > 1 ? splittedName[0].substring(0, 1) + "." + splittedName[1] : splittedName[0];
+  nameFormatted = splittedName.length > 1 ? splittedName[0].substring(0, 1) + "." + splittedName[1] + (splittedName.length > 2 ? " " + splittedName[2] : "") + (splittedName.length > 3 ? " " + splittedName[3] : "") : splittedName[0];
   return nameFormatted;
 };
 

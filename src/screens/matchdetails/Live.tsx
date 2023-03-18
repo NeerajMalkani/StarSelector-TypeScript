@@ -49,12 +49,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   const CreateTableCells = (title: string | number | undefined, isCenter: boolean, isSR?: boolean, isStriker?: boolean) => {
     return (
-      <Text
-        variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}
-      >
+      <Text variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"} numberOfLines={1} ellipsizeMode="tail" style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}>
         {title + (isStriker ? "*" : "")}
       </Text>
     );
@@ -289,18 +284,18 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                 <View style={[Styles.flexRow]}>
                   {CreateTableHeader("Bowler", false)}
                   {CreateTableHeader("O", true)}
-                  {CreateTableHeader("R", true)}
                   {CreateTableHeader("M", true)}
+                  {CreateTableHeader("R", true)}
                   {CreateTableHeader("W", true)}
-                  {CreateTableHeader("E", true, true)}
+                  {CreateTableHeader("ER", true, true)}
                 </View>
                 <Divider style={[Styles.marginVertical8]} />
                 {liveDetails?.miniscore.bowlerStriker.bowlName && (
                   <View style={[Styles.flexRow]}>
                     {CreateTableCells(FormatScoreName(liveDetails?.miniscore.bowlerStriker.bowlName), false, false, true)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerStriker.bowlOvs ? liveDetails.miniscore.bowlerStriker.bowlOvs : 0, true, false)}
-                    {CreateTableCells(liveDetails?.miniscore.bowlerStriker.bowlRuns ? liveDetails.miniscore.bowlerStriker.bowlRuns : 0, true, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerStriker.bowlMaidens ? liveDetails.miniscore.bowlerStriker.bowlMaidens : 0, true, false)}
+                    {CreateTableCells(liveDetails?.miniscore.bowlerStriker.bowlRuns ? liveDetails.miniscore.bowlerStriker.bowlRuns : 0, true, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerStriker.bowlWkts ? liveDetails.miniscore.bowlerStriker.bowlWkts : 0, true, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerStriker.bowlEcon ? liveDetails.miniscore.bowlerStriker.bowlEcon.toFixed(2) : 0.0, true, true)}
                   </View>
@@ -310,8 +305,8 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                   <View style={[Styles.flexRow]}>
                     {CreateTableCells(FormatScoreName(liveDetails?.miniscore.bowlerNonStriker.bowlName), false, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.bowlOvs ? liveDetails.miniscore.bowlerNonStriker.bowlOvs : 0, true, false)}
-                    {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.bowlRuns ? liveDetails.miniscore.bowlerNonStriker.bowlRuns : 0, true, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.bowlMaidens ? liveDetails.miniscore.bowlerNonStriker.bowlMaidens : 0, true, false)}
+                    {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.bowlRuns ? liveDetails.miniscore.bowlerNonStriker.bowlRuns : 0, true, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.bowlWkts ? liveDetails.miniscore.bowlerNonStriker.bowlWkts : 0, true, false)}
                     {CreateTableCells(liveDetails?.miniscore.bowlerNonStriker.bowlEcon ? liveDetails.miniscore.bowlerNonStriker.bowlEcon.toFixed(2) : 0.0, true, true)}
                   </View>
