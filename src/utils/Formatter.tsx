@@ -15,11 +15,38 @@ export const FormatScore = (runs?: number, wickets?: number) => {
   return scoreFormatted;
 };
 
-
 export const FormatScoreName = (name?: string) => {
   let nameFormatted: string | undefined = "";
   let splittedName: Array<string> = name ? name.split(" ") : [];
   nameFormatted = splittedName.length > 1 ? splittedName[0].substring(0, 1) + "." + splittedName[1] : splittedName[0];
+  return nameFormatted;
+};
+
+export const FormatScorecardName = (name?: string) => {
+  let nameFormatted: string | undefined = "";
+  let splittedName: Array<string> = name ? name.split(" ") : [];
+  for (let i = 0; i < splittedName.length; i++) {
+    if (
+      splittedName[i] !== ")" &&
+      splittedName[i] !== "(" &&
+      splittedName[i] !== "and" &&
+      splittedName[i] !== "lbw" &&
+      splittedName[i] !== "b" &&
+      splittedName[i] !== "c" &&
+      splittedName[i] !== "run out" &&
+      splittedName[i + 1] !== ")" &&
+      splittedName[i + 1] !== "(" &&
+      splittedName[i + 1] !== "and" &&
+      splittedName[i + 1] !== "lbw" &&
+      splittedName[i + 1] !== "b" &&
+      splittedName[i + 1] !== "c" &&
+      splittedName[i + 1] !== "run out" &&
+      i < splittedName.length - 1
+    ) {
+      splittedName[i] = splittedName[i].includes("(sub)") ? splittedName[i].substring(0, 6) + "." : splittedName[i].substring(0, 1) + ".";
+    }
+  }
+  nameFormatted = splittedName.join(" ");
   return nameFormatted;
 };
 

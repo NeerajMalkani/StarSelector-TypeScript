@@ -53,7 +53,7 @@ const Home = ({ theme, navigation }: BasicProps) => {
     if (response && response.data && Array.isArray(response.data.matches)) {
       let objFeaturedMatches: Matches[] = response.data.matches;
       objFeaturedMatches = objFeaturedMatches.filter((match: Matches) => {
-        return match.match.matchInfo?.state !== "In Progress";
+        return match.match.matchInfo?.state === "Complete";
       });
       objFeaturedMatches.map((match: Matches) => {
         arrFeaturedMatches.push(match.match);
@@ -95,7 +95,7 @@ const Home = ({ theme, navigation }: BasicProps) => {
     setRefreshing(false);
   };
   /*#endregion */
-  
+
   const onRefresh = () => {
     setIsCountdownRunning(false);
     setRefreshing(true);
