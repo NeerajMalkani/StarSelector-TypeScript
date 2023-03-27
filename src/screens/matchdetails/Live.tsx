@@ -4,24 +4,24 @@ import { Divider, Text } from "react-native-paper";
 import { GetMatchCommentry, GetMatchCommentryUnofficial } from "../../api/APICalls";
 import NoData from "../../components/NoData";
 import SectionTitle from "../../components/SectionTitle";
-import { CommentaryList, LiveDetails } from "../../models/Live";
+import { LiveDetails } from "../../models/Live";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 import reactStringReplace from "react-string-replace";
-import { Commentary, CommentaryLine, CommentaryMain } from "../../models/MatchCommentary";
+import { CommentaryLine, CommentaryMain } from "../../models/MatchCommentary";
 
+let lastTime = "", iid = 1;
 const Live = ({ matchID, theme, matchStatus }: any) => {
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [currInningID, setCurrInningID] = useState<number>();
   const [liveDetails, setLiveDetails] = useState<LiveDetails>();
-  const [commentaryDetails, setCommentaryDetails] = useState<CommentaryMain>();
+  const [commentaryDetails, setCommentaryDetails] = useState<CommentaryLine[]>([]);
   const scrollViewRef: any = useRef();
 
   const MatchCommentarySuccess = (response: any) => {
     if (response.data && response.data.commentaryLines) {
-      setCommentaryDetails(response.data);
+      setCommentaryDetails([...commentaryDetails, ...response.data.commentaryLines]);
     }
   };
 
@@ -31,7 +31,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   const MatchLiveSuccess = (response: any) => {
     if (response.data && response.data.matchHeader && response.data.miniscore) {
-      setCurrInningID(response.data.miniscore.inningsId);
+      iid = response.data.miniscore.inningsId;
       GetMatchCommentryUnofficial({ matchId: matchID, iid: response.data.miniscore.inningsId }, MatchCommentarySuccess, MatchCommentaryFail);
       setLiveDetails(response.data);
     }
@@ -43,6 +43,11 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
     console.log(errorMessage);
     setRefreshing(false);
     setIsLoading(false);
+  };
+
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
   useEffect(() => {
@@ -64,7 +69,12 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   const CreateTableCells = (title: string | number | undefined, isCenter: boolean, isSR?: boolean, isStriker?: boolean) => {
     return (
-      <Text variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"} numberOfLines={1} ellipsizeMode="tail" style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}>
+      <Text
+        variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}
+      >
         {title + (isStriker ? "*" : "")}
       </Text>
     );
@@ -110,6 +120,9 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
       <View>
         {commentaryList.map((k: CommentaryLine, i: number) => {
           if (k.commentary) {
+            if(i === (commentaryList.length - 1)){
+              lastTime = k.commentary.timestamp;
+            }
             let formattedString,
               isReplaced = false;
             if (k.commentary.commentaryFormats) {
@@ -196,7 +209,19 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
           <ActivityIndicator animating={true} color={colors.primary} size={32} />
         </View>
       ) : liveDetails ? (
-        <ScrollView style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={[1, 3, 5, 7]} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}>
+        <ScrollView
+          style={[Styles.flex1]}
+          showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[1, 3, 5, 7]}
+          onScroll={({ nativeEvent }: any) => {
+            if (isCloseToBottom(nativeEvent)) {
+              console.log("Reached end");
+              GetMatchCommentryUnofficial({ matchId: matchID, iid: iid, tms: lastTime }, MatchCommentarySuccess, MatchCommentaryFail);
+            }
+          }}
+          scrollEventThrottle={400}
+          refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}
+        >
           {liveDetails?.miniscore.matchScoreDetails && liveDetails?.miniscore.matchScoreDetails.inningsScoreList && liveDetails?.miniscore.matchScoreDetails.inningsScoreList.length > 0 && (
             <View style={[Styles.margin16, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
               <View style={[Styles.flexRow, { justifyContent: "space-between" }]}>
@@ -336,7 +361,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
           {commentaryDetails && <SectionTitle title="Commentary" colors={colors} />}
           {commentaryDetails && (
             <View style={[Styles.paddingHorizontal16]}>
-              <CreateCommentary commentaryList={commentaryDetails?.commentaryLines} />
+              <CreateCommentary commentaryList={commentaryDetails} />
             </View>
           )}
         </ScrollView>
