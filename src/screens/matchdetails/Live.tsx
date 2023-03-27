@@ -1,23 +1,38 @@
 import { useState, useEffect, useRef } from "react";
 import { ActivityIndicator, View, ScrollView, RefreshControl } from "react-native";
 import { Divider, Text } from "react-native-paper";
-import { GetMatchCommentry } from "../../api/APICalls";
+import { GetMatchCommentry, GetMatchCommentryUnofficial } from "../../api/APICalls";
 import NoData from "../../components/NoData";
 import SectionTitle from "../../components/SectionTitle";
 import { CommentaryList, LiveDetails } from "../../models/Live";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 import reactStringReplace from "react-string-replace";
+import { Commentary, CommentaryLine, CommentaryMain } from "../../models/MatchCommentary";
 
 const Live = ({ matchID, theme, matchStatus }: any) => {
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [currInningID, setCurrInningID] = useState<number>();
   const [liveDetails, setLiveDetails] = useState<LiveDetails>();
+  const [commentaryDetails, setCommentaryDetails] = useState<CommentaryMain>();
   const scrollViewRef: any = useRef();
+
+  const MatchCommentarySuccess = (response: any) => {
+    if (response.data && response.data.commentaryLines) {
+      setCommentaryDetails(response.data);
+    }
+  };
+
+  const MatchCommentaryFail = (errorMessage: string) => {
+    console.log(errorMessage);
+  };
 
   const MatchLiveSuccess = (response: any) => {
     if (response.data && response.data.matchHeader && response.data.miniscore) {
+      setCurrInningID(response.data.miniscore.inningsId);
+      GetMatchCommentryUnofficial({ matchId: matchID, iid: response.data.miniscore.inningsId }, MatchCommentarySuccess, MatchCommentaryFail);
       setLiveDetails(response.data);
     }
     setRefreshing(false);
@@ -93,79 +108,82 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
   const CreateCommentary = ({ commentaryList }: any) => {
     return (
       <View>
-        {commentaryList.map((k: CommentaryList, i: number) => {
-          let formattedString;
-          if (k.commentaryFormats.bold) {
-            for (let a = 0; a < k.commentaryFormats.bold.formatId.length; a++) {
-              if (a > 0) {
-                formattedString = reactStringReplace(formattedString, k.commentaryFormats.bold.formatId[a], () => (
-                  <Text key={a} variant="titleMedium">
-                    {k.commentaryFormats.bold.formatValue[a]}
-                  </Text>
-                ));
-              } else {
-                formattedString = reactStringReplace(k.commText, k.commentaryFormats.bold.formatId[a], () => (
-                  <Text key={a} variant="titleMedium">
-                    {k.commentaryFormats.bold.formatValue[a]}
-                  </Text>
-                ));
+        {commentaryList.map((k: CommentaryLine, i: number) => {
+          if (k.commentary) {
+            let formattedString,
+              isReplaced = false;
+            if (k.commentary.commentaryFormats) {
+              for (let a = 0; a < k.commentary.commentaryFormats.length; a++) {
+                if (k.commentary.commentaryFormats[a].type) {
+                  for (let b = 0; b < k.commentary.commentaryFormats[a].value.length; b++) {
+                    formattedString = reactStringReplace(isReplaced ? formattedString : k.commentary.commtxt, k.commentary.commentaryFormats[a].value[b].id, () => (
+                      <Text key={a} variant="titleMedium" style={{ fontStyle: k.commentary?.commentaryFormats[a].type === "italic" ? "italic" : "normal" }}>
+                        {k.commentary?.commentaryFormats[a].value[b].value}
+                      </Text>
+                    ));
+                  }
+                  isReplaced = true;
+                }
               }
+              if (!isReplaced) {
+                formattedString = k.commentary.commtxt;
+              }
+            } else {
+              formattedString = k.commentary.commtxt;
             }
-          } else {
-            formattedString = k.commText;
-          }
-          return (
-            <View key={i}>
-              {k.overSeparator && (
-                <View style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
-                  <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
-                    <Text variant="titleMedium" style={[Styles.marginEnd12]}>
-                      Over {k.overNumber?.toFixed(0)}
-                    </Text>
-                    <View style={[Styles.flexRow]}>
-                      {k.overSeparator.o_summary.split(" ").map((v, d) => {
-                        return <ScroreOnBall key={d} index={d} score={v} />;
-                      })}
-                      <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
-                        {"(" + (k.overSeparator.runs ? k.overSeparator.runs : "0") + " runs)"}
+            return (
+              <View key={i}>
+                {k.commentary.overSep && (
+                  <View style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
+                    <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
+                      <Text variant="titleMedium" style={[Styles.marginEnd12]}>
+                        Over {k.commentary.overNum?.toFixed(0)}
                       </Text>
+                      <View style={[Styles.flexRow]}>
+                        {k.commentary.overSep.overSummary.split(" ").map((v, d) => {
+                          return <ScroreOnBall key={d} index={d} score={v} />;
+                        })}
+                        <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
+                          {"(" + (k.commentary.overSep.runs ? k.commentary.overSep.runs : "0") + " runs)"}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                  <View style={[Styles.flexRow, Styles.padding8, { justifyContent: "space-between" }]}>
-                    <View>
-                      <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
-                        Batsmen
+                    <View style={[Styles.flexRow, Styles.padding8, { justifyContent: "space-between" }]}>
+                      <View>
+                        <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
+                          Batsmen
+                        </Text>
+                        <Text variant="bodyMedium">{k.commentary.overSep.batStrikerName}</Text>
+                        <Text variant="bodyMedium">{k.commentary.overSep.batNonStrikerName}</Text>
+                      </View>
+                      <View style={[Styles.flexAlignEnd]}>
+                        <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
+                          Bowler
+                        </Text>
+                        <Text variant="bodyMedium">{k.commentary.overSep.bowlName}</Text>
+                      </View>
+                    </View>
+                    <View style={[Styles.flexRow, Styles.borderTop1, Styles.padding8, { justifyContent: "space-between", borderTopColor: colors.seperator }]}>
+                      <Text variant="bodyLarge" style={{ color: colors.textSecondary }}>
+                        Total
                       </Text>
-                      <Text variant="bodyMedium">{k.overSeparator.batStrikerNames[0]}</Text>
-                      <Text variant="bodyMedium">{k.overSeparator.batStrikerNames[1]}</Text>
+                      <Text variant="bodyLarge">{FormatScore(k.commentary.overSep.score, k.commentary.overSep.wickets)}</Text>
                     </View>
-                    <View style={[Styles.flexAlignEnd]}>
-                      <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
-                        Bowler
-                      </Text>
-                      <Text variant="bodyMedium">{k.overSeparator.bowlNames[0]}</Text>
-                    </View>
-                  </View>
-                  <View style={[Styles.flexRow, Styles.borderTop1, Styles.padding8, { justifyContent: "space-between", borderTopColor: colors.seperator }]}>
-                    <Text variant="bodyLarge" style={{ color: colors.textSecondary }}>
-                      Total
-                    </Text>
-                    <Text variant="bodyLarge">{FormatScore(k.overSeparator.score, k.overSeparator.wickets)}</Text>
-                  </View>
-                </View>
-              )}
-              <View style={[Styles.flexRow, Styles.marginTop12]}>
-                {k.overNumber && (
-                  <View style={[Styles.flex1, Styles.flexColumn]}>
-                    <Text variant="titleMedium">{k.overNumber}</Text>
                   </View>
                 )}
-                <View style={[Styles.flex6]}>
-                  <Text variant="bodyMedium">{formattedString}</Text>
+                <View style={[Styles.flexRow, Styles.marginTop12]}>
+                  {k.commentary.overNum && (
+                    <View style={[Styles.flex1, Styles.flexColumn]}>
+                      <Text variant="titleMedium">{k.commentary.overNum}</Text>
+                    </View>
+                  )}
+                  <View style={[Styles.flex6]}>
+                    <Text variant="bodyMedium">{formattedString}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          );
+            );
+          }
         })}
       </View>
     );
@@ -315,10 +333,12 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
               </View>
             </View>
           )}
-          <SectionTitle title="Commentary" colors={colors} />
-          <View style={[Styles.paddingHorizontal16]}>
-            <CreateCommentary commentaryList={liveDetails?.commentaryList} />
-          </View>
+          {commentaryDetails && <SectionTitle title="Commentary" colors={colors} />}
+          {commentaryDetails && (
+            <View style={[Styles.paddingHorizontal16]}>
+              <CreateCommentary commentaryList={commentaryDetails?.commentaryLines} />
+            </View>
+          )}
         </ScrollView>
       ) : (
         <NoData iconName="earth" title="No Live feed" subtitle="Match has not started yet or has been interupted" />

@@ -92,7 +92,7 @@ const Scorecard = ({ matchID, theme }: any) => {
           return (
             <View key={i} style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.height72, Styles.flexAlignCenter, i < Object.keys(batTeamDetails.batsmenData).length - 1 && Styles.borderBottom1, i < Object.keys(batTeamDetails.batsmenData).length - 1 && { borderBottomColor: colors.seperator }]}>
               <View style={[Styles.flex3]}>
-                <Text variant={batTeamDetails.batsmenData["bat_" + (i + 1)].outDesc === "batting" ? "titleSmall" : "bodyMedium"} numberOfLines={1} ellipsizeMode="tail" style={[{ color: batTeamDetails.batsmenData["bat_" + (i + 1)].outDesc === "batting" ? colors.primary : colors.text }]}>
+                <Text variant="titleSmall" numberOfLines={1} ellipsizeMode="tail" style={[{ color: batTeamDetails.batsmenData["bat_" + (i + 1)].outDesc === "batting" ? colors.primary : batTeamDetails.batsmenData["bat_" + (i + 1)].outDesc !== "" ? colors.textSecondary : colors.text }]}>
                   {FormatScoreName(batTeamDetails.batsmenData["bat_" + (i + 1)].batName)}
                 </Text>
                 <Text variant="bodySmall" numberOfLines={2} ellipsizeMode="tail" style={[Styles.paddingEnd12, { color: colors.textSecondary }]}>
@@ -230,18 +230,6 @@ const Scorecard = ({ matchID, theme }: any) => {
               <CreateScoreCardBowlingTable {...matchScorecard.scoreCard[3]} />
             </Collapsible>
           )}
-
-          {/* {matchScorecard.scoreCard.map((k: ScoreCard, i: number) => {
-            return (
-              <View key={i}>
-                <CreateScoreCardHeader scorecard={k} index={i} />
-                <Collapsible collapsed={arrcollapsed[i][0]}>
-                  <CreateScoreCardTable {...k} />
-                  <CreateScoreCardBowlingTable {...k} />
-                </Collapsible>
-              </View>
-            );
-          })} */}
         </ScrollView>
       ) : (
         <NoData iconName="earth" title="No Live feed" subtitle="Match has not started yet or has been interupted" />

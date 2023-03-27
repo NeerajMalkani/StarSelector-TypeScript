@@ -85,6 +85,20 @@ export const GetMatchCommentry = (params: any, successCallback: Function, failur
       failureCallback(ex);
     });
 };
+export const GetMatchCommentryUnofficial = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.getUnofficial("matches/get-commentaries", params)
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response, params.type);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};
 export const GetMatchScorecard = (params: any, successCallback: Function, failureCallback: Function) => {
   Provider.get("match/" + params.matchID + "/scorecard")
     .then((response) => {
