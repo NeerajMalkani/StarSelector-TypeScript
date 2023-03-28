@@ -8,30 +8,38 @@ import { LiveDetails } from "../../models/Live";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 import reactStringReplace from "react-string-replace";
-import { CommentaryLine, CommentaryMain } from "../../models/MatchCommentary";
-
-let lastTime = "", iid = 1;
+import { CommentaryLine } from "../../models/MatchCommentary";
+import OverlayLoader from "../../components/OverlayLoader";
+let lastTime = "",
+  iid = 1;
 const Live = ({ matchID, theme, matchStatus }: any) => {
+  lastTime = "";
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
+  const [isCommentaryLoading, setIsCommentaryLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [liveDetails, setLiveDetails] = useState<LiveDetails>();
   const [commentaryDetails, setCommentaryDetails] = useState<CommentaryLine[]>([]);
   const scrollViewRef: any = useRef();
 
-  const MatchCommentarySuccess = (response: any) => {
+  const MatchCommentarySuccess = (response: any, isTms: boolean) => {
     if (response.data && response.data.commentaryLines) {
-      setCommentaryDetails([...commentaryDetails, ...response.data.commentaryLines]);
+      response.data.commentaryLines.shift();
+      const prevCom = isTms ? commentaryDetails : [];
+      setCommentaryDetails([...prevCom, ...response.data.commentaryLines]);
+      setIsCommentaryLoading(false);
     }
   };
 
   const MatchCommentaryFail = (errorMessage: string) => {
     console.log(errorMessage);
+    setIsCommentaryLoading(false);
   };
 
   const MatchLiveSuccess = (response: any) => {
     if (response.data && response.data.matchHeader && response.data.miniscore) {
       iid = response.data.miniscore.inningsId;
+      lastTime = "";
       GetMatchCommentryUnofficial({ matchId: matchID, iid: response.data.miniscore.inningsId }, MatchCommentarySuccess, MatchCommentaryFail);
       setLiveDetails(response.data);
     }
@@ -46,7 +54,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
   };
 
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
-    const paddingToBottom = 20;
+    const paddingToBottom = 100;
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
@@ -56,6 +64,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   const onRefresh = () => {
     setRefreshing(true);
+    setCommentaryDetails([]);
     GetMatchCommentry({ matchID: matchID }, MatchLiveSuccess, MatchLiveFail);
   };
 
@@ -107,7 +116,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
         break;
     }
     return score === "... " || score === "..." || score === " ... " || score === "" || score === "  " ? null : (
-      <View key={index} style={[Styles.marginStart4, Styles.width24, Styles.height24, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 12, backgroundColor: ballColor }]}>
+      <View key={index} style={[Styles.marginStart4, Styles.padding4, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 10000, minWidth: 24, backgroundColor: ballColor }]}>
         <Text variant="bodySmall" style={{ color: multicolors.white }}>
           {score}
         </Text>
@@ -120,7 +129,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
       <View>
         {commentaryList.map((k: CommentaryLine, i: number) => {
           if (k.commentary) {
-            if(i === (commentaryList.length - 1)){
+            if (i === commentaryList.length - 1) {
               lastTime = k.commentary.timestamp;
             }
             let formattedString,
@@ -130,12 +139,13 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                 if (k.commentary.commentaryFormats[a].type) {
                   for (let b = 0; b < k.commentary.commentaryFormats[a].value.length; b++) {
                     formattedString = reactStringReplace(isReplaced ? formattedString : k.commentary.commtxt, k.commentary.commentaryFormats[a].value[b].id, () => (
-                      <Text key={a} variant="titleMedium" style={{ fontStyle: k.commentary?.commentaryFormats[a].type === "italic" ? "italic" : "normal" }}>
+                      <Text key={b} variant="titleMedium" style={{ fontStyle: k.commentary?.commentaryFormats[a].type === "italic" ? "italic" : "normal" }}>
                         {k.commentary?.commentaryFormats[a].value[b].value}
                       </Text>
                     ));
+                    isReplaced = true;
                   }
-                  isReplaced = true;
+                  
                 }
               }
               if (!isReplaced) {
@@ -204,6 +214,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   return (
     <View style={[Styles.flex1]}>
+      {isCommentaryLoading && <OverlayLoader colors={colors} />}
       {isLoading ? (
         <View style={[Styles.flex1, Styles.flexAlignCenter, Styles.flexJustifyCenter]}>
           <ActivityIndicator animating={true} color={colors.primary} size={32} />
@@ -212,10 +223,10 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
         <ScrollView
           style={[Styles.flex1]}
           showsVerticalScrollIndicator={false}
-          stickyHeaderIndices={[1, 3, 5, 7]}
+          stickyHeaderIndices={[1, 3, 5]}
           onScroll={({ nativeEvent }: any) => {
-            if (isCloseToBottom(nativeEvent)) {
-              console.log("Reached end");
+            if (isCloseToBottom(nativeEvent) && !isCommentaryLoading && lastTime !== "") {
+              setIsCommentaryLoading(true);
               GetMatchCommentryUnofficial({ matchId: matchID, iid: iid, tms: lastTime }, MatchCommentarySuccess, MatchCommentaryFail);
             }
           }}
@@ -252,35 +263,26 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
               <Text variant="titleSmall" style={[Styles.marginTop12, { color: colors.primary }]}>
                 {liveDetails?.matchHeader.status ? liveDetails?.matchHeader.status : matchStatus}
               </Text>
+              {liveDetails?.miniscore.recentOvsStats && (
+                <ScrollView
+                  ref={scrollViewRef}
+                  showsHorizontalScrollIndicator={false}
+                  onContentSizeChange={() => {
+                    if (scrollViewRef && scrollViewRef.current) {
+                      scrollViewRef.current.scrollToEnd({ animated: true });
+                    }
+                  }}
+                  horizontal={true}
+                  style={[Styles.marginTop12]}
+                >
+                  <View style={[Styles.flexRow, Styles.flex1, Styles.padding16]}>
+                    {liveDetails?.miniscore.recentOvsStats.split(" ").map((k, i) => {
+                      return <ScroreOnBall key={i} index={i} score={k} />;
+                    })}
+                  </View>
+                </ScrollView>
+              )}
             </View>
-          )}
-          {liveDetails?.miniscore.lastWicket && <SectionTitle title="Last Wicket" colors={colors} />}
-          {liveDetails?.miniscore.lastWicket && (
-            <View style={[Styles.margin16, Styles.marginTop0, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
-              <Text variant="titleSmall" style={{ color: multicolors.red }}>
-                {liveDetails?.miniscore.lastWicket}
-              </Text>
-            </View>
-          )}
-          {liveDetails?.miniscore.recentOvsStats && <SectionTitle title="Last 12 Balls" colors={colors} />}
-          {liveDetails?.miniscore.recentOvsStats && (
-            <ScrollView
-              ref={scrollViewRef}
-              showsHorizontalScrollIndicator={false}
-              onContentSizeChange={() => {
-                if (scrollViewRef && scrollViewRef.current) {
-                  scrollViewRef.current.scrollToEnd({ animated: true });
-                }
-              }}
-              horizontal={true}
-              style={[Styles.margin16, Styles.marginTop0, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}
-            >
-              <View style={[Styles.flexRow, Styles.flex1, Styles.padding16]}>
-                {liveDetails?.miniscore.recentOvsStats.split(" ").map((k, i) => {
-                  return <ScroreOnBall key={i} index={i} score={k} />;
-                })}
-              </View>
-            </ScrollView>
           )}
           {liveDetails?.miniscore.matchScoreDetails.state !== "Preview" && <SectionTitle title="Miniscore" colors={colors} />}
           {liveDetails?.miniscore.matchScoreDetails.state !== "Preview" && (
@@ -355,6 +357,14 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                   </View>
                 )}
                 <Divider />
+                {liveDetails?.miniscore.lastWicket && (
+                  <View style={[Styles.marginTop12]}>
+                    <Text variant="titleSmall">Last Wicket</Text>
+                    <Text variant="titleSmall" style={{ color: multicolors.red }}>
+                      {liveDetails?.miniscore.lastWicket}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
           )}

@@ -75,7 +75,7 @@ export const GetMatchCommentry = (params: any, successCallback: Function, failur
   Provider.get("match/" + params.matchID + "/commentary")
     .then((response) => {
       if (response && response.data) {
-        successCallback(response, params.type);
+        successCallback(response);
       } else {
         failureCallback(response.statusText);
       }
@@ -89,7 +89,7 @@ export const GetMatchCommentryUnofficial = (params: any, successCallback: Functi
   Provider.getUnofficial("matches/get-commentaries", params)
     .then((response) => {
       if (response && response.data) {
-        successCallback(response, params.type);
+        successCallback(response, params.tms ? true : false);
       } else {
         failureCallback(response.statusText);
       }
