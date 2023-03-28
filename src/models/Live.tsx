@@ -3,8 +3,14 @@ export interface Bold {
   formatValue: string[];
 }
 
+export interface Italic {
+  formatId: string[];
+  formatValue: string[];
+}
+
 export interface CommentaryFormats {
-  bold: Bold;
+  bold?: Bold;
+  italic?: Italic;
 }
 
 export interface OverSeparator {
@@ -40,7 +46,7 @@ export interface CommentaryList {
   inningsId: number;
   event: string;
   batTeamName: string;
-  commentaryFormats: CommentaryFormats;
+  commentaryFormats: any;
   overNumber?: number;
   overSeparator: OverSeparator;
 }

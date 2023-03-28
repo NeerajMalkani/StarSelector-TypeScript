@@ -1,71 +1,70 @@
 import { useState, useEffect, useRef } from "react";
 import { ActivityIndicator, View, ScrollView, RefreshControl } from "react-native";
 import { Divider, Text } from "react-native-paper";
-import { GetMatchCommentry, GetMatchCommentryUnofficial } from "../../api/APICalls";
+import { GetMatchCommentry } from "../../api/APICalls";
 import NoData from "../../components/NoData";
 import SectionTitle from "../../components/SectionTitle";
-import { LiveDetails } from "../../models/Live";
+import { CommentaryList, LiveDetails } from "../../models/Live";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 import reactStringReplace from "react-string-replace";
-import { CommentaryLine } from "../../models/MatchCommentary";
-import OverlayLoader from "../../components/OverlayLoader";
-let lastTime = "",
-  iid = 1;
+import ScroreOnBall from "../../components/ScoreOnBall";
+
 const Live = ({ matchID, theme, matchStatus }: any) => {
-  lastTime = "";
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [isCommentaryLoading, setIsCommentaryLoading] = useState(false);
+  const [commentaryDetails, setCommentaryDetails] = useState<CommentaryList[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [liveDetails, setLiveDetails] = useState<LiveDetails>();
-  const [commentaryDetails, setCommentaryDetails] = useState<CommentaryLine[]>([]);
   const scrollViewRef: any = useRef();
 
-  const MatchCommentarySuccess = (response: any, isTms: boolean) => {
-    if (response.data && response.data.commentaryLines) {
-      response.data.commentaryLines.shift();
-      const prevCom = isTms ? commentaryDetails : [];
-      setCommentaryDetails([...prevCom, ...response.data.commentaryLines]);
-      setIsCommentaryLoading(false);
+  const MatchCommentarySuccess = (response: any) => {
+    if (response.data && response.data.matchHeader) {
+      setLiveDetails(response.data);
+      setCommentaryDetails(response.data.commentaryList);
     }
+    setIsCommentaryLoading(false);
+    setRefreshing(false);
+    setIsLoading(false);
+  };
+
+  const MatchCommentaryLoadMoreSuccess = (response: any) => {
+    if (response.data && response.data.matchHeader) {
+      const existingCommentary = [...commentaryDetails];
+      response.data.commentaryList.shift();
+      const allCommentary = [...existingCommentary, ...response.data.commentaryList];
+      setCommentaryDetails(allCommentary);
+    }
+    setIsCommentaryLoading(false);
   };
 
   const MatchCommentaryFail = (errorMessage: string) => {
     console.log(errorMessage);
     setIsCommentaryLoading(false);
-  };
-
-  const MatchLiveSuccess = (response: any) => {
-    if (response.data && response.data.matchHeader && response.data.miniscore) {
-      iid = response.data.miniscore.inningsId;
-      lastTime = "";
-      GetMatchCommentryUnofficial({ matchId: matchID, iid: response.data.miniscore.inningsId }, MatchCommentarySuccess, MatchCommentaryFail);
-      setLiveDetails(response.data);
-    }
-    setRefreshing(false);
-    setIsLoading(false);
-  };
-
-  const MatchLiveFail = (errorMessage: string) => {
-    console.log(errorMessage);
     setRefreshing(false);
     setIsLoading(false);
   };
 
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }: any) => {
-    const paddingToBottom = 100;
+    const paddingToBottom = 20;
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
+  const OnScroll = ({ nativeEvent }: any) => {
+    if (isCloseToBottom(nativeEvent) && !isCommentaryLoading) {
+      setIsCommentaryLoading(true);
+      GetMatchCommentry({ matchId: matchID, inning: liveDetails?.miniscore.inningsId, lastTimeStamp: commentaryDetails[commentaryDetails.length - 1].timestamp }, MatchCommentaryLoadMoreSuccess, MatchCommentaryFail);
+    }
+  };
+
   useEffect(() => {
-    GetMatchCommentry({ matchID: matchID }, MatchLiveSuccess, MatchLiveFail);
+    GetMatchCommentry({ matchId: matchID }, MatchCommentarySuccess, MatchCommentaryFail);
   }, []);
 
   const onRefresh = () => {
     setRefreshing(true);
-    setCommentaryDetails([]);
-    GetMatchCommentry({ matchID: matchID }, MatchLiveSuccess, MatchLiveFail);
+    GetMatchCommentry({ matchId: matchID }, MatchCommentarySuccess, MatchCommentaryFail);
   };
 
   const CreateTableHeader = (title: string | number | undefined, isCenter: boolean, isSR?: boolean, isStriker?: boolean) => {
@@ -78,135 +77,88 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   const CreateTableCells = (title: string | number | undefined, isCenter: boolean, isSR?: boolean, isStriker?: boolean) => {
     return (
-      <Text
-        variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"}
-        numberOfLines={1}
-        ellipsizeMode="tail"
-        style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}
-      >
+      <Text variant={isCenter ? "bodyMedium" : isStriker ? "titleSmall" : "bodyMedium"} numberOfLines={1} ellipsizeMode="tail" style={[Styles.paddingVertical8, isCenter ? (isSR ? Styles.flex2 : Styles.flex1) : Styles.flex3, isCenter && Styles.textCenter, { color: isStriker ? colors.primary : colors.text }]}>
         {title + (isStriker ? "*" : "")}
       </Text>
-    );
-  };
-
-  const ScroreOnBall = ({ index, score }: any) => {
-    score = score ? score.toString() : "";
-    let ballColor = colors.textSecondary;
-    switch (true) {
-      case score === "4":
-        ballColor = multicolors.blue;
-        break;
-      case score === "6":
-        ballColor = multicolors.green;
-        break;
-      case score === "W":
-        ballColor = multicolors.red;
-        break;
-      case score === "Wd" || score === "wd":
-        ballColor = multicolors.yellow;
-        break;
-      case score === "Nb" || score === "nb" || score === "N" || score === "n":
-        ballColor = multicolors.yellow;
-        break;
-      case score === "B" || score === "b" || score === "by" || score === "Lb" || score === "lb":
-        ballColor = multicolors.golden;
-        break;
-      case score === "... " || score === "..." || score === " ... " || score === "" || score === "  " || score === "|":
-        ballColor = multicolors.white;
-        break;
-    }
-    return score === "... " || score === "..." || score === " ... " || score === "" || score === "  " ? null : (
-      <View key={index} style={[Styles.marginStart4, Styles.padding4, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 10000, minWidth: 24, backgroundColor: ballColor }]}>
-        <Text variant="bodySmall" style={{ color: multicolors.white }}>
-          {score}
-        </Text>
-      </View>
     );
   };
 
   const CreateCommentary = ({ commentaryList }: any) => {
     return (
       <View>
-        {commentaryList.map((k: CommentaryLine, i: number) => {
-          if (k.commentary) {
-            if (i === commentaryList.length - 1) {
-              lastTime = k.commentary.timestamp;
-            }
-            let formattedString,
-              isReplaced = false;
-            if (k.commentary.commentaryFormats) {
-              for (let a = 0; a < k.commentary.commentaryFormats.length; a++) {
-                if (k.commentary.commentaryFormats[a].type) {
-                  for (let b = 0; b < k.commentary.commentaryFormats[a].value.length; b++) {
-                    formattedString = reactStringReplace(isReplaced ? formattedString : k.commentary.commtxt, k.commentary.commentaryFormats[a].value[b].id, () => (
-                      <Text key={b} variant="titleMedium" style={{ fontStyle: k.commentary?.commentaryFormats[a].type === "italic" ? "italic" : "normal" }}>
-                        {k.commentary?.commentaryFormats[a].value[b].value}
-                      </Text>
-                    ));
-                    isReplaced = true;
-                  }
-                  
-                }
+        {commentaryList.map((k: CommentaryList, i: number) => {
+          let formattedString,
+            isReplaced = false;
+          if (k.commentaryFormats) {
+            const formats = Object.keys(k.commentaryFormats);
+            for (let a = 0; a < formats.length; a++) {
+              for (let b = 0; b < k.commentaryFormats[formats[a]].formatId.length; b++) {
+                formattedString = reactStringReplace(isReplaced ? formattedString : k.commText, k.commentaryFormats[formats[a]].formatId[b], () => (
+                  <Text key={b} variant="titleMedium" style={{ fontStyle: formats[a] === "italic" ? "italic" : "normal" }}>
+                    {k.commentaryFormats[formats[a]].formatValue[b]}
+                  </Text>
+                ));
+                isReplaced = true;
               }
-              if (!isReplaced) {
-                formattedString = k.commentary.commtxt;
-              }
-            } else {
-              formattedString = k.commentary.commtxt;
             }
-            return (
-              <View key={i}>
-                {k.commentary.overSep && (
-                  <View style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
-                    <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
-                      <Text variant="titleMedium" style={[Styles.marginEnd12]}>
-                        Over {k.commentary.overNum?.toFixed(0)}
+            if (!isReplaced) {
+              formattedString = k.commText;
+            }
+          } else {
+            formattedString = k.commText;
+          }
+          return (
+            <View key={i}>
+              {k.overSeparator && (
+                <View style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
+                  <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
+                    <Text variant="titleMedium" style={[Styles.marginEnd12]}>
+                      Over {k.overNumber?.toFixed(0)}
+                    </Text>
+                    <View style={[Styles.flexRow]}>
+                      {k.overSeparator.o_summary.split(" ").map((v, d) => {
+                        return <ScroreOnBall key={d} index={d} score={v} colors={colors} multicolors={multicolors} />;
+                      })}
+                      <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
+                        {"(" + (k.overSeparator.runs ? k.overSeparator.runs : "0") + " runs)"}
                       </Text>
-                      <View style={[Styles.flexRow]}>
-                        {k.commentary.overSep.overSummary.split(" ").map((v, d) => {
-                          return <ScroreOnBall key={d} index={d} score={v} />;
-                        })}
-                        <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
-                          {"(" + (k.commentary.overSep.runs ? k.commentary.overSep.runs : "0") + " runs)"}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={[Styles.flexRow, Styles.padding8, { justifyContent: "space-between" }]}>
-                      <View>
-                        <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
-                          Batsmen
-                        </Text>
-                        <Text variant="bodyMedium">{k.commentary.overSep.batStrikerName}</Text>
-                        <Text variant="bodyMedium">{k.commentary.overSep.batNonStrikerName}</Text>
-                      </View>
-                      <View style={[Styles.flexAlignEnd]}>
-                        <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
-                          Bowler
-                        </Text>
-                        <Text variant="bodyMedium">{k.commentary.overSep.bowlName}</Text>
-                      </View>
-                    </View>
-                    <View style={[Styles.flexRow, Styles.borderTop1, Styles.padding8, { justifyContent: "space-between", borderTopColor: colors.seperator }]}>
-                      <Text variant="bodyLarge" style={{ color: colors.textSecondary }}>
-                        Total
-                      </Text>
-                      <Text variant="bodyLarge">{FormatScore(k.commentary.overSep.score, k.commentary.overSep.wickets)}</Text>
                     </View>
                   </View>
-                )}
-                <View style={[Styles.flexRow, Styles.marginTop12]}>
-                  {k.commentary.overNum && (
-                    <View style={[Styles.flex1, Styles.flexColumn]}>
-                      <Text variant="titleMedium">{k.commentary.overNum}</Text>
+                  <View style={[Styles.flexRow, Styles.padding8, { justifyContent: "space-between" }]}>
+                    <View>
+                      <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
+                        Batsmen
+                      </Text>
+                      <Text variant="bodyMedium">{k.overSeparator.batNonStrikerNames[0]}</Text>
+                      <Text variant="bodyMedium">{k.overSeparator.batNonStrikerNames[0]}</Text>
                     </View>
-                  )}
-                  <View style={[Styles.flex6]}>
-                    <Text variant="bodyMedium">{formattedString}</Text>
+                    <View style={[Styles.flexAlignEnd]}>
+                      <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
+                        Bowler
+                      </Text>
+                      <Text variant="bodyMedium">{k.overSeparator.bowlNames[0]}</Text>
+                    </View>
+                  </View>
+                  <View style={[Styles.flexRow, Styles.borderTop1, Styles.padding8, { justifyContent: "space-between", borderTopColor: colors.seperator }]}>
+                    <Text variant="bodyLarge" style={{ color: colors.textSecondary }}>
+                      Total
+                    </Text>
+                    <Text variant="bodyLarge">{FormatScore(k.overSeparator.score, k.overSeparator.wickets)}</Text>
                   </View>
                 </View>
+              )}
+              <View style={[Styles.flexRow, Styles.marginTop12]}>
+                {k.overNumber && (
+                  <View style={[Styles.flex1, Styles.flexColumn]}>
+                    <Text variant="titleMedium">{k.overNumber}</Text>
+                  </View>
+                )}
+                <View style={[Styles.flex6]}>
+                  <Text variant="bodyMedium">{formattedString}</Text>
+                </View>
               </View>
-            );
-          }
+            </View>
+          );
         })}
       </View>
     );
@@ -214,25 +166,12 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   return (
     <View style={[Styles.flex1]}>
-      {isCommentaryLoading && <OverlayLoader colors={colors} />}
       {isLoading ? (
         <View style={[Styles.flex1, Styles.flexAlignCenter, Styles.flexJustifyCenter]}>
           <ActivityIndicator animating={true} color={colors.primary} size={32} />
         </View>
       ) : liveDetails ? (
-        <ScrollView
-          style={[Styles.flex1]}
-          showsVerticalScrollIndicator={false}
-          stickyHeaderIndices={[1, 3, 5]}
-          onScroll={({ nativeEvent }: any) => {
-            if (isCloseToBottom(nativeEvent) && !isCommentaryLoading && lastTime !== "") {
-              setIsCommentaryLoading(true);
-              GetMatchCommentryUnofficial({ matchId: matchID, iid: iid, tms: lastTime }, MatchCommentarySuccess, MatchCommentaryFail);
-            }
-          }}
-          scrollEventThrottle={400}
-          refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}
-        >
+        <ScrollView style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={[1, 3, 5]} onScroll={OnScroll} scrollEventThrottle={400} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}>
           {liveDetails?.miniscore.matchScoreDetails && liveDetails?.miniscore.matchScoreDetails.inningsScoreList && liveDetails?.miniscore.matchScoreDetails.inningsScoreList.length > 0 && (
             <View style={[Styles.margin16, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
               <View style={[Styles.flexRow, { justifyContent: "space-between" }]}>
@@ -277,7 +216,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                 >
                   <View style={[Styles.flexRow, Styles.flex1, Styles.padding16]}>
                     {liveDetails?.miniscore.recentOvsStats.split(" ").map((k, i) => {
-                      return <ScroreOnBall key={i} index={i} score={k} />;
+                      return <ScroreOnBall key={i} index={i} score={k} colors={colors} multicolors={multicolors} />;
                     })}
                   </View>
                 </ScrollView>

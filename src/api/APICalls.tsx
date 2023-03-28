@@ -72,24 +72,10 @@ export const GetMatchTeams = (params: any, successCallback: Function, failureCal
     });
 };
 export const GetMatchCommentry = (params: any, successCallback: Function, failureCallback: Function) => {
-  Provider.get("match/" + params.matchID + "/commentary")
+  Provider.get("match/" + params.matchId + "/commentary", params)
     .then((response) => {
       if (response && response.data) {
         successCallback(response);
-      } else {
-        failureCallback(response.statusText);
-      }
-    })
-    .catch((ex) => {
-      console.log(ex);
-      failureCallback(ex);
-    });
-};
-export const GetMatchCommentryUnofficial = (params: any, successCallback: Function, failureCallback: Function) => {
-  Provider.getUnofficial("matches/get-commentaries", params)
-    .then((response) => {
-      if (response && response.data) {
-        successCallback(response, params.tms ? true : false);
       } else {
         failureCallback(response.statusText);
       }
