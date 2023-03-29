@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ActivityIndicator, View, ScrollView, RefreshControl } from "react-native";
 import { Divider, Text } from "react-native-paper";
 import { GetMatchCommentry } from "../../api/APICalls";
@@ -321,4 +321,4 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
   );
 };
 
-export default Live;
+export default React.memo(Live);

@@ -1,6 +1,6 @@
 import { ScrollView, View, ActivityIndicator } from "react-native";
 import { Avatar, Divider, List, Text } from "react-native-paper";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Styles } from "../../styles/styles";
 import { GetMatchTeams } from "../../api/APICalls";
 import { deviceWidth, s3Path } from "../../utils/Constants";
@@ -9,14 +9,14 @@ import SectionTitle from "../../components/SectionTitle";
 import NoData from "../../components/NoData";
 import { Bench, PlayingXI, Squads } from "../../models/MatchTeams";
 
-const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
+
+const Teams = ({ theme, matchID, team1Name, team2Name, openPlayer, setPlayerID }: any) => {
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [team1Playing11, setTeam1Playing11] = useState<PlayingXI[]>([]);
   const [team1PlayingBench, setTeam1PlayingBench] = useState<Bench[]>([]);
   const [team2Playing11, setTeam2Playing11] = useState<PlayingXI[]>([]);
   const [team2PlayingBench, setTeam2PlayingBench] = useState<Bench[]>([]);
-
   const [index, setIndex] = useState(0);
 
   let squadTitle = "Squad";
@@ -96,6 +96,7 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
                         </View>
                       )}
                       left={() => <Avatar.Image size={42} source={{ uri: s3Path.replace("{faceid}", k.faceImageId.toString()) }} />}
+                      onPress={() => {openPlayer(k.id)}}
                     />
                     <Divider />
                   </View>
@@ -138,4 +139,4 @@ const Teams = ({ theme, matchID, team1Name, team2Name }: any) => {
   );
 };
 
-export default Teams;
+export default React.memo(Teams);

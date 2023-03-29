@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator, ScrollView, RefreshControl, TouchableNativeFeedback } from "react-native";
 import { Divider, Text } from "react-native-paper";
 import Collapsible from "react-native-collapsible";
@@ -238,4 +238,4 @@ const Scorecard = ({ matchID, theme }: any) => {
   );
 };
 
-export default Scorecard;
+export default React.memo(Scorecard);

@@ -99,3 +99,17 @@ export const GetMatchScorecard = (params: any, successCallback: Function, failur
       failureCallback(ex);
     });
 };
+export const GetPlayerID = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("browse/player/" + params.playerID)
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};

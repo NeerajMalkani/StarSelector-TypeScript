@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, View, Image } from "react-native";
 import { Text } from "react-native-paper";
 import { GetMatchInfo } from "../../api/APICalls";
@@ -94,4 +94,4 @@ const MatchInfo = ({ matchID, theme }: any) => {
   );
 };
 
-export default MatchInfo;
+export default React.memo(MatchInfo);
