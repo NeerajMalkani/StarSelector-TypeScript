@@ -113,3 +113,31 @@ export const GetPlayerID = (params: any, successCallback: Function, failureCallb
       failureCallback(ex);
     });
 };
+export const GetPlayerBattingID = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("browse/player/" + params.playerID + "/batting")
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};
+export const GetPlayerBowlingID = (params: any, successCallback: Function, failureCallback: Function) => {
+  Provider.get("browse/player/" + params.playerID + "/bowling")
+    .then((response) => {
+      if (response && response.data) {
+        successCallback(response);
+      } else {
+        failureCallback(response.statusText);
+      }
+    })
+    .catch((ex) => {
+      console.log(ex);
+      failureCallback(ex);
+    });
+};

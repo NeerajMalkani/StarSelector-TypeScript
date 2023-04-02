@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar, View, ScrollView, RefreshControl } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { BasicProps } from "../../models/Props";
 import { Styles } from "../../styles/styles";
 import { ActivityIndicator } from "react-native-paper";
@@ -11,6 +12,7 @@ import { deviceWidth } from "../../utils/Constants";
 import SectionTitle from "../../components/SectionTitle";
 import { Match, Matches, SeriesMatches, TypeMatch } from "../../models/Matches";
 
+let callingMatchTimer: any = null;
 let arrFeaturedMatches: Match[] = [];
 const Home = ({ theme, navigation }: BasicProps) => {
   const { multicolors, colors }: any = theme;
@@ -33,7 +35,7 @@ const Home = ({ theme, navigation }: BasicProps) => {
         return typeMatch.matchType === "International";
       });
       arrFeaturedMatches = [];
-      objIntLiveMatches.map((typeMatch: TypeMatch) => {
+      objLiveMatches.map((typeMatch: TypeMatch) => {
         typeMatch.seriesMatches.map((seriesMatch: SeriesMatches) => {
           seriesMatch.seriesAdWrapper?.matches.map((match: Match) => {
             arrFeaturedMatches.push(match);
@@ -105,6 +107,18 @@ const Home = ({ theme, navigation }: BasicProps) => {
   const RenderLiveCards = ({ item }: any) => {
     return <LiveCardItem item={item} colors={colors} multicolors={multicolors} navigation={navigation} />;
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      callingMatchTimer = setInterval(() => {
+        GetLiveMatches(FeaturedLiveMatchesSuccess, FeaturedLiveMatchesFail);
+      }, 20000);
+      return () => {
+        clearInterval(callingMatchTimer);
+        callingMatchTimer = null;
+      };
+    }, [])
+  );
 
   useEffect(() => {
     GetUpcomingMatches(UpcomingMatchesSuccess, UpcomingMatchesFail);

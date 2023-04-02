@@ -9,8 +9,7 @@ import SectionTitle from "../../components/SectionTitle";
 import NoData from "../../components/NoData";
 import { Bench, PlayingXI, Squads } from "../../models/MatchTeams";
 
-
-const Teams = ({ theme, matchID, team1Name, team2Name, openPlayer, setPlayerID }: any) => {
+const Teams = ({ theme, matchID, team1Name, team2Name, openPlayer }: any) => {
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [team1Playing11, setTeam1Playing11] = useState<PlayingXI[]>([]);
@@ -96,7 +95,9 @@ const Teams = ({ theme, matchID, team1Name, team2Name, openPlayer, setPlayerID }
                         </View>
                       )}
                       left={() => <Avatar.Image size={42} source={{ uri: s3Path.replace("{faceid}", k.faceImageId.toString()) }} />}
-                      onPress={() => {openPlayer(k.id)}}
+                      onPress={() => {
+                        openPlayer(k.id);
+                      }}
                     />
                     <Divider />
                   </View>

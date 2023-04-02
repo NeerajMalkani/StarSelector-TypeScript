@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Provider as PaperProvider } from "react-native-paper";
-import { SafeAreaView } from "react-native";
+import { IconButton, Provider as PaperProvider } from "react-native-paper";
+import { SafeAreaView, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Styles } from "./src/styles/styles";
@@ -26,6 +26,12 @@ export default function App() {
                 headerTitleStyle: {
                   color: themeMode ? lightTheme.multicolors.white : darkTheme.multicolors.white,
                 },
+                headerRight: () => (
+                  <View style={[Styles.flexRow, Styles.marginEnd16]}>
+                    <IconButton icon="table-arrow-up" size={28} iconColor={themeMode ? lightTheme.multicolors.white : darkTheme.multicolors.white} onPress={() => console.log("Pressed")} />
+                    <IconButton icon="calendar-month-outline" size={28} iconColor={themeMode ? lightTheme.multicolors.white : darkTheme.multicolors.white} onPress={() => console.log("Pressed")} />
+                  </View>
+                ),
                 headerTintColor: themeMode ? lightTheme.multicolors.white : darkTheme.multicolors.white,
               }}
               initialParams={{ themeMode: themeMode }}

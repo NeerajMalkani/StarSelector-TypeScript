@@ -44,7 +44,7 @@ export const UpcomingCardItem = ({ item, colors, multicolors, isCountdownRunning
       <View style={[Styles.flexRow, Styles.paddingHorizontal16, Styles.paddingVertical8, Styles.flexAlignCenter, { justifyContent: "space-between" }]}>
         {CreateTeam(item.matchInfo.team1, 1)}
         <View>
-          <CountDown running={isCountdownRunning} until={(item.matchInfo.startDate - new Date().getTime()) / 1000} timeLabelStyle={{ color: colors.text }} timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }} digitTxtStyle={{ color: colors.primary }} digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }} size={12} />
+          <CountDown running={true} until={(item.matchInfo.startDate - new Date().getTime()) / 1000} timeLabelStyle={{ color: colors.text }} timeLabels={{ d: "Days", h: "Hours", m: "Minutes", s: "Secs" }} digitTxtStyle={{ color: colors.primary }} digitStyle={{ backgroundColor: multicolors.white, elevation: 2 }} size={12} />
         </View>
         {CreateTeam(item.matchInfo.team2, 2)}
       </View>

@@ -29,7 +29,7 @@ const ScroreOnBall = ({ index, score, colors, multicolors }: any) => {
       break;
   }
   return score === "... " || score === "..." || score === " ... " || score === "" || score === "  " ? null : (
-    <View key={index} style={[Styles.marginStart4, Styles.padding4, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 10000, minWidth: 24, backgroundColor: ballColor }]}>
+    <View key={new Date().getTime()} style={[Styles.marginStart4, Styles.padding4, Styles.flexAlignCenter, Styles.flexJustifyCenter, { borderRadius: 10000, minWidth: 24, backgroundColor: ballColor }]}>
       <Text variant="bodySmall" style={{ color: multicolors.white }}>
         {score}
       </Text>

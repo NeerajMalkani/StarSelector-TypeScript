@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { ActivityIndicator, View, ScrollView, RefreshControl } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { ActivityIndicator, View, ScrollView, RefreshControl, Animated, Dimensions } from "react-native";
 import { Divider, Text } from "react-native-paper";
 import { GetMatchCommentry } from "../../api/APICalls";
 import NoData from "../../components/NoData";
@@ -8,8 +8,12 @@ import { CommentaryList, LiveDetails } from "../../models/Live";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 import reactStringReplace from "react-string-replace";
+import * as Animatable from "react-native-animatable";
 import ScroreOnBall from "../../components/ScoreOnBall";
+import { useFocusEffect } from "@react-navigation/native";
 
+let callingLiveTimer: any = null,
+  allCommentary: CommentaryList[] = [];
 const Live = ({ matchID, theme, matchStatus }: any) => {
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
@@ -17,12 +21,25 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
   const [commentaryDetails, setCommentaryDetails] = useState<CommentaryList[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [liveDetails, setLiveDetails] = useState<LiveDetails>();
+  const [translateValue, setTranslateValue] = useState<any>(new Animated.Value(Dimensions.get("window").height));
+  const scrollViewHolderRef: any = useRef();
   const scrollViewRef: any = useRef();
 
   const MatchCommentarySuccess = (response: any) => {
     if (response.data && response.data.matchHeader) {
       setLiveDetails(response.data);
-      setCommentaryDetails(response.data.commentaryList);
+      const existingCommentary = [...allCommentary];
+      if (existingCommentary.length > 0) {
+        allCommentary = Object.values(
+          response.data.commentaryList.concat(existingCommentary).reduce((r: any, o: any) => {
+            r[o.timestamp] = o;
+            return r;
+          }, {})
+        );
+      } else {
+        allCommentary = response.data.commentaryList;
+      }
+      setCommentaryDetails(allCommentary);
     }
     setIsCommentaryLoading(false);
     setRefreshing(false);
@@ -33,14 +50,16 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
     if (response.data && response.data.matchHeader) {
       const existingCommentary = [...commentaryDetails];
       response.data.commentaryList.shift();
-      const allCommentary = [...existingCommentary, ...response.data.commentaryList];
+      allCommentary = [...existingCommentary, ...response.data.commentaryList];
       setCommentaryDetails(allCommentary);
     }
+    HideLoadingMore();
     setIsCommentaryLoading(false);
   };
 
   const MatchCommentaryFail = (errorMessage: string) => {
     console.log(errorMessage);
+    HideLoadingMore();
     setIsCommentaryLoading(false);
     setRefreshing(false);
     setIsLoading(false);
@@ -51,16 +70,41 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
 
+  const ShowLoadingMore = () => {
+    Animated.timing(translateValue, {
+      toValue: Dimensions.get("window").height - 136,
+      duration: 700,
+      useNativeDriver: true,
+    }).start();
+  };
+  const HideLoadingMore = () => {
+    Animated.timing(translateValue, {
+      toValue: Dimensions.get("window").height,
+      duration: 700,
+      useNativeDriver: true,
+    }).start();
+  };
+
   const OnScroll = ({ nativeEvent }: any) => {
-    if (isCloseToBottom(nativeEvent) && !isCommentaryLoading) {
+    if (isCloseToBottom(nativeEvent) && !isCommentaryLoading && liveDetails?.miniscore) {
       setIsCommentaryLoading(true);
+      ShowLoadingMore();
       GetMatchCommentry({ matchId: matchID, inning: liveDetails?.miniscore.inningsId, lastTimeStamp: commentaryDetails[commentaryDetails.length - 1].timestamp }, MatchCommentaryLoadMoreSuccess, MatchCommentaryFail);
     }
   };
 
-  useEffect(() => {
-    GetMatchCommentry({ matchId: matchID }, MatchCommentarySuccess, MatchCommentaryFail);
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      GetMatchCommentry({ matchId: matchID }, MatchCommentarySuccess, MatchCommentaryFail);
+      callingLiveTimer = setInterval(() => {
+        GetMatchCommentry({ matchId: matchID }, MatchCommentarySuccess, MatchCommentaryFail);
+      }, 20000);
+      return () => {
+        clearInterval(callingLiveTimer);
+        callingLiveTimer = null;
+      };
+    }, [])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -94,7 +138,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
             for (let a = 0; a < formats.length; a++) {
               for (let b = 0; b < k.commentaryFormats[formats[a]].formatId.length; b++) {
                 formattedString = reactStringReplace(isReplaced ? formattedString : k.commText, k.commentaryFormats[formats[a]].formatId[b], () => (
-                  <Text key={b} variant="titleMedium" style={{ fontStyle: formats[a] === "italic" ? "italic" : "normal" }}>
+                  <Text variant="titleMedium" style={{ fontStyle: formats[a] === "italic" ? "italic" : "normal" }}>
                     {k.commentaryFormats[formats[a]].formatValue[b]}
                   </Text>
                 ));
@@ -108,7 +152,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
             formattedString = k.commText;
           }
           return (
-            <View key={i}>
+            <View key={i + k.timestamp + new Date().getTime()}>
               {k.overSeparator && (
                 <View style={[Styles.flexColumn, Styles.marginTop8, Styles.borderRadius8, { backgroundColor: colors.background, elevation: 2 }]}>
                   <View style={[Styles.flexRow, Styles.padding8, Styles.borderBottom1, { justifyContent: "space-between", borderBottomColor: colors.seperator }]}>
@@ -117,7 +161,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                     </Text>
                     <View style={[Styles.flexRow]}>
                       {k.overSeparator.o_summary.split(" ").map((v, d) => {
-                        return <ScroreOnBall key={d} index={d} score={v} colors={colors} multicolors={multicolors} />;
+                        return <ScroreOnBall key={d + new Date().getTime()} index={d} score={v} colors={colors} multicolors={multicolors} />;
                       })}
                       <Text variant="bodyLarge" style={{ color: colors.primary, marginStart: 12 }}>
                         {"(" + (k.overSeparator.runs ? k.overSeparator.runs : "0") + " runs)"}
@@ -129,7 +173,7 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                       <Text variant="bodySmall" style={{ color: colors.textSecondary }}>
                         Batsmen
                       </Text>
-                      <Text variant="bodyMedium">{k.overSeparator.batNonStrikerNames[0]}</Text>
+                      <Text variant="bodyMedium">{k.overSeparator.batStrikerNames[0]}</Text>
                       <Text variant="bodyMedium">{k.overSeparator.batNonStrikerNames[0]}</Text>
                     </View>
                     <View style={[Styles.flexAlignEnd]}>
@@ -166,13 +210,40 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
 
   return (
     <View style={[Styles.flex1]}>
+      <Animatable.View
+        style={[
+          Styles.positionAbsolute,
+          Styles.height24,
+          Styles.width80,
+          Styles.flexAlignSelfCenter,
+          Styles.flexAlignCenter,
+          Styles.flexJustifyCenter,
+          {
+            transform: [
+              {
+                translateY: translateValue,
+              },
+            ],
+            backgroundColor: multicolors.black,
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+            zIndex: 2,
+          },
+        ]}
+        delay={700}
+        duration={1200}
+      >
+        <Text variant="titleSmall" style={{ color: multicolors.white }}>
+          Loading
+        </Text>
+      </Animatable.View>
       {isLoading ? (
         <View style={[Styles.flex1, Styles.flexAlignCenter, Styles.flexJustifyCenter]}>
           <ActivityIndicator animating={true} color={colors.primary} size={32} />
         </View>
       ) : liveDetails ? (
-        <ScrollView style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={[1, 3, 5]} onScroll={OnScroll} scrollEventThrottle={400} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}>
-          {liveDetails?.miniscore.matchScoreDetails && liveDetails?.miniscore.matchScoreDetails.inningsScoreList && liveDetails?.miniscore.matchScoreDetails.inningsScoreList.length > 0 && (
+        <ScrollView ref={scrollViewHolderRef} style={[Styles.flex1]} showsVerticalScrollIndicator={false} stickyHeaderIndices={[1, 3, 5]} onScroll={OnScroll} scrollEventThrottle={400} refreshControl={<RefreshControl colors={[theme.colors.primary]} refreshing={refreshing} onRefresh={onRefresh} />}>
+          {liveDetails?.miniscore && liveDetails?.miniscore.matchScoreDetails && liveDetails?.miniscore.matchScoreDetails.inningsScoreList && liveDetails?.miniscore.matchScoreDetails.inningsScoreList.length > 0 && (
             <View style={[Styles.margin16, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
               <View style={[Styles.flexRow, { justifyContent: "space-between" }]}>
                 <View style={[Styles.flexColumn]}>
@@ -216,15 +287,15 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
                 >
                   <View style={[Styles.flexRow, Styles.flex1, Styles.padding16]}>
                     {liveDetails?.miniscore.recentOvsStats.split(" ").map((k, i) => {
-                      return <ScroreOnBall key={i} index={i} score={k} colors={colors} multicolors={multicolors} />;
+                      return <ScroreOnBall key={i + new Date().getTime()} index={i} score={k} colors={colors} multicolors={multicolors} />;
                     })}
                   </View>
                 </ScrollView>
               )}
             </View>
           )}
-          {liveDetails?.miniscore.matchScoreDetails.state !== "Preview" && <SectionTitle title="Miniscore" colors={colors} />}
-          {liveDetails?.miniscore.matchScoreDetails.state !== "Preview" && (
+          {liveDetails?.miniscore && liveDetails?.miniscore.matchScoreDetails.state !== "Preview" && <SectionTitle title="Miniscore" colors={colors} />}
+          {liveDetails?.miniscore && liveDetails?.miniscore.matchScoreDetails.state !== "Preview" && (
             <View>
               <View style={[Styles.margin16, Styles.marginTop0, Styles.padding16, Styles.borderRadius12, { backgroundColor: colors.background, elevation: 2 }]}>
                 <View style={[Styles.flexRow]}>
@@ -309,8 +380,8 @@ const Live = ({ matchID, theme, matchStatus }: any) => {
           )}
           {commentaryDetails && <SectionTitle title="Commentary" colors={colors} />}
           {commentaryDetails && (
-            <View style={[Styles.paddingHorizontal16]}>
-              <CreateCommentary commentaryList={commentaryDetails} />
+            <View style={[Styles.paddingHorizontal16, Styles.marginBottom32]}>
+              <CreateCommentary key={new Date().getTime()} commentaryList={commentaryDetails} />
             </View>
           )}
         </ScrollView>

@@ -23,7 +23,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   const playerDetailsRef = useRef<BottomSheet>(null);
   const [playerData, setPlayerData] = useState<Player>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const sheetIndex = useState(0);
+  const sheetIndex = useState(-1);
   const [index, setIndex] = useState(0);
 
   const PlayerSuccess = (response: any) => {
@@ -41,7 +41,8 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   const OpenPlayerDetails = (playerID: number) => {
     setIsLoading(true);
     GetPlayerID({ playerID: playerID }, PlayerSuccess, PlayerFail);
-    sheetIndex[1](1)};
+    sheetIndex[1](0);
+  };
 
   const [routes] = useState([
     { key: "info", title: "Match Info" },
@@ -71,7 +72,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
   useEffect(() => {
     navigation.setOptions({ title: route.params.matchName });
   }, []);
-  
+
   const renderTabBar = (props: any) => <TabBar {...props} tabStyle={{ width: "auto", paddingHorizontal: 18 }} scrollEnabled indicatorStyle={{ backgroundColor: multicolors.white, height: 3 }} style={{ backgroundColor: colors.primary }} />;
 
   return (
@@ -79,7 +80,7 @@ const MatchDetailsScreen = ({ route, navigation, theme }: any) => {
       <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
       <View style={[Styles.flex1, { backgroundColor: colors.background }]}>
         <TabView renderTabBar={renderTabBar} navigationState={{ index, routes }} renderScene={renderScene} onIndexChange={setIndex} initialLayout={{ width: deviceWidth }} />
-        <PlayerDetails bottomSheetRef={playerDetailsRef} setIndex={sheetIndex} playerData={playerData} isLoading={isLoading} colors={colors}/>
+        <PlayerDetails bottomSheetRef={playerDetailsRef} setIndex={sheetIndex} playerData={playerData} isLoading={isLoading} colors={colors} />
       </View>
     </View>
   );

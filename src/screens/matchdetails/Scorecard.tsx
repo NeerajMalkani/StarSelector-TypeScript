@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, ActivityIndicator, ScrollView, RefreshControl, TouchableNativeFeedback } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Divider, Text } from "react-native-paper";
 import Collapsible from "react-native-collapsible";
 import { GetMatchScorecard } from "../../api/APICalls";
@@ -8,8 +9,8 @@ import { MatchScorecard, ScoreCard } from "../../models/MatchScorecard";
 import { Styles } from "../../styles/styles";
 import { FormatOvers, FormatScore, FormatScoreName } from "../../utils/Formatter";
 
+let callingScorecardTimer: any = null;
 const Scorecard = ({ matchID, theme }: any) => {
-  console.log(matchID);
   const { colors, multicolors } = theme;
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -21,7 +22,7 @@ const Scorecard = ({ matchID, theme }: any) => {
   const [matchScorecard, setMatchScorecard] = useState<MatchScorecard>();
 
   const MatchScorecardSuccess = (response: any) => {
-    if (response && response.data) {
+    if (response && response.data && response.data.scoreCard && response.data.scoreCard.length > 0) {
       setMatchScorecard(response.data);
       arrcollapsed[response.data.scoreCard.length - 1][1](false);
     }
@@ -189,6 +190,18 @@ const Scorecard = ({ matchID, theme }: any) => {
     setRefreshing(true);
     GetMatchScorecard({ matchID: matchID }, MatchScorecardSuccess, MatchScorecardFail);
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      callingScorecardTimer = setInterval(() => {
+        GetMatchScorecard({ matchID: matchID }, MatchScorecardSuccess, MatchScorecardFail);
+      }, 20000);
+      return () => {
+        clearInterval(callingScorecardTimer);
+        callingScorecardTimer = null;
+      };
+    }, [])
+  );
 
   useEffect(() => {
     GetMatchScorecard({ matchID: matchID }, MatchScorecardSuccess, MatchScorecardFail);
